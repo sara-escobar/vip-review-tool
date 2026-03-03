@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIP Redesign Review Tool</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img src="https://www.vipmedicalgroup.ai/wp-content/uploads/2024/03/vip-logo.png" alt="VIP Logo" class="logo" onerror="this.style.display='none'">
+      <h1>VIP Redesign Review Tool</h1>
+    </div>
+    <div class="navbar-actions">
+      <span class="author-label">Reviewing as:</span>
+      <input type="text" id="authorName" placeholder="Your name" class="author-input">
+    </div>
+  </header>
+
+  <div class="url-bar">
+    <input type="text" id="pageUrl" placeholder="Enter page URL to review (e.g., https://veintreatmentclinic.com/)" class="url-input">
+    <button id="loadPage" class="btn btn-primary">Load Page</button>
+    <button id="toggleMode" class="btn btn-secondary">
+      <span class="mode-icon">📍</span>
+      <span class="mode-text">Add Pin</span>
+    </button>
+  </div>
+
+  <main class="main-content">
+    <div class="preview-container">
+      <div class="preview-wrapper" id="previewWrapper">
+        <iframe id="pageFrame" src="about:blank"></iframe>
+        <div class="pin-overlay" id="pinOverlay"></div>
+        <div class="pins-container" id="pinsContainer"></div>
+      </div>
+      <div class="preview-placeholder" id="placeholder">
+        <div class="placeholder-content">
+          <span class="placeholder-icon">🔗</span>
+          <p>Enter a URL above to start reviewing</p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="comments-panel">
+      <div class="comments-header">
+        <h2>Comments</h2>
+        <span class="comment-count" id="commentCount">0</span>
+      </div>
+      
+      <div class="comments-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="open">Open</button>
+        <button class="filter-btn" data-filter="resolved">Resolved</button>
+      </div>
+
+      <div class="comments-list" id="commentsList">
+        <div class="no-comments">
+          <span>💬</span>
+          <p>No comments yet</p>
+          <p class="hint">Click "Add Pin" then click on the page to add a comment</p>
+        </div>
+      </div>
+
+      <div class="add-comment-form" id="addCommentForm" style="display: none;">
+        <div class="form-header">
+          <span class="pin-indicator">📍 New Pin</span>
+          <button class="btn-close" id="cancelComment">×</button>
+        </div>
+        <textarea id="commentText" placeholder="What's your feedback?" rows="3"></textarea>
+        <div class="form-actions">
+          <button id="submitComment" class="btn btn-primary">Add Comment</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "vip-review-tool",
+  "version": "1.0.0",
+  "description": "VIP Redesign Review Tool - Pin comments on live pages",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["review", "comments", "vip"],
+  "author": "VIP Medical Group",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
