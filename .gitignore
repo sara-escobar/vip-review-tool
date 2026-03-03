@@ -1,0 +1,4 @@
+node_modules/
+comments.json
+.env
+*.log
