@@ -16,7 +16,6 @@
       flex-direction: column;
     }
 
-    /* Header */
     .header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       padding: 16px 24px;
@@ -59,7 +58,6 @@
     .reviewer-input::placeholder { color: rgba(255,255,255,0.6); }
     .reviewer-input:focus { outline: none; border-color: #6c5ce7; }
 
-    /* Page Selector */
     .page-bar {
       background: white;
       padding: 16px 24px;
@@ -70,10 +68,7 @@
       flex-wrap: wrap;
     }
 
-    .page-bar label {
-      font-weight: 500;
-      color: #333;
-    }
+    .page-bar label { font-weight: 500; color: #333; }
 
     .page-select {
       flex: 1;
@@ -100,6 +95,7 @@
 
     .btn-primary { background: #6c5ce7; color: white; }
     .btn-primary:hover { background: #5b4bd4; }
+    .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
 
     .btn-pin { background: #00b894; color: white; }
     .btn-pin:hover { background: #00a383; }
@@ -109,59 +105,54 @@
       animation: pulse 1s infinite;
     }
 
+    .btn-refresh { background: #74b9ff; color: white; }
+    .btn-refresh:hover { background: #0984e3; }
+
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
       50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
     }
 
-    /* Main Layout */
     .main {
       flex: 1;
       display: flex;
       overflow: hidden;
     }
 
-    /* Preview Area */
     .preview-area {
       flex: 1;
       position: relative;
       background: #e0e0e0;
-      overflow: hidden;
+      overflow: auto;
     }
 
-    .frame-container {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
+    .screenshot-container {
+      position: relative;
+      margin: 16px;
+      display: inline-block;
       background: white;
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       overflow: hidden;
     }
 
-    .frame-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    .screenshot-container img {
+      display: block;
+      max-width: 100%;
+      height: auto;
     }
 
-    .pin-layer {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
-      pointer-events: none;
-      border-radius: 8px;
-    }
-
-    .pin-layer.active {
-      pointer-events: auto;
+    .screenshot-container.pin-mode {
       cursor: crosshair;
+    }
+
+    .screenshot-container.pin-mode::after {
+      content: '';
+      position: absolute;
+      inset: 0;
       background: rgba(108, 92, 231, 0.1);
       border: 3px dashed #6c5ce7;
+      pointer-events: none;
     }
 
     .pin {
@@ -173,7 +164,6 @@
       border-radius: 50%;
       transform: translate(-50%, -50%);
       cursor: pointer;
-      pointer-events: auto;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -201,7 +191,32 @@
 
     .placeholder-icon { font-size: 4rem; margin-bottom: 16px; }
 
-    /* Comments Panel */
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      z-index: 200;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #6c5ce7;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .comments-panel {
       width: 400px;
       background: white;
@@ -337,7 +352,6 @@
 
     .empty-state span { font-size: 3rem; display: block; margin-bottom: 16px; }
 
-    /* Add Comment Form */
     .add-form {
       padding: 16px;
       background: #f8f9fa;
@@ -438,18 +452,22 @@
       </optgroup>
     </select>
     <button id="loadBtn" class="btn btn-primary">Load Page</button>
+    <button id="refreshBtn" class="btn btn-refresh" style="display:none;">🔄 Refresh Screenshot</button>
     <button id="pinBtn" class="btn btn-pin">📍 Add Comment</button>
   </div>
 
   <main class="main">
-    <div class="preview-area">
-      <div class="frame-container" id="frameContainer" style="display:none;">
-        <iframe id="previewFrame"></iframe>
+    <div class="preview-area" id="previewArea">
+      <div class="screenshot-container" id="screenshotContainer" style="display:none;">
+        <img id="screenshotImg" src="" alt="Page screenshot">
       </div>
-      <div class="pin-layer" id="pinLayer"></div>
       <div class="placeholder" id="placeholder">
         <span class="placeholder-icon">🔍</span>
         <p>Select a page above to start reviewing</p>
+      </div>
+      <div class="loading" id="loading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Capturing page screenshot...</p>
       </div>
     </div>
 
@@ -488,7 +506,6 @@
   </main>
 
   <script>
-    // FIX: Use correct API path for /review/ subdirectory
     const API = window.location.pathname.replace(/\/$/, '') || '';
     
     let currentUrl = '';
@@ -501,11 +518,13 @@
     // Elements
     const pageSelect = document.getElementById('pageSelect');
     const loadBtn = document.getElementById('loadBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
     const pinBtn = document.getElementById('pinBtn');
-    const previewFrame = document.getElementById('previewFrame');
-    const frameContainer = document.getElementById('frameContainer');
-    const pinLayer = document.getElementById('pinLayer');
+    const screenshotContainer = document.getElementById('screenshotContainer');
+    const screenshotImg = document.getElementById('screenshotImg');
     const placeholder = document.getElementById('placeholder');
+    const loading = document.getElementById('loading');
+    const previewArea = document.getElementById('previewArea');
     const commentsList = document.getElementById('commentsList');
     const commentCount = document.getElementById('commentCount');
     const addForm = document.getElementById('addForm');
@@ -523,20 +542,56 @@
     });
 
     // Load page
-    loadBtn.addEventListener('click', loadPage);
+    loadBtn.addEventListener('click', () => loadPage(false));
+    refreshBtn.addEventListener('click', () => loadPage(true));
     pageSelect.addEventListener('change', () => {
-      if (pageSelect.value) loadPage();
+      if (pageSelect.value) loadPage(false);
     });
 
-    function loadPage() {
+    async function loadPage(refresh = false) {
       const url = pageSelect.value;
       if (!url) return alert('Please select a page');
       
       currentUrl = url;
-      previewFrame.src = url;
-      frameContainer.style.display = 'block';
       placeholder.style.display = 'none';
-      loadComments();
+      screenshotContainer.style.display = 'none';
+      loading.style.display = 'flex';
+      loadBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API}/api/screenshot`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, refresh })
+        });
+
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+
+        // Add cache buster for refreshed screenshots
+        const imgUrl = refresh ? `${data.screenshot}?t=${Date.now()}` : data.screenshot;
+        screenshotImg.src = imgUrl;
+        
+        screenshotImg.onload = () => {
+          loading.style.display = 'none';
+          screenshotContainer.style.display = 'inline-block';
+          refreshBtn.style.display = 'inline-block';
+          loadComments();
+        };
+
+        screenshotImg.onerror = () => {
+          throw new Error('Failed to load screenshot');
+        };
+
+      } catch (err) {
+        console.error(err);
+        loading.style.display = 'none';
+        placeholder.style.display = 'flex';
+        alert('Error loading page: ' + err.message);
+      } finally {
+        loadBtn.disabled = false;
+      }
     }
 
     // Pin mode
@@ -545,23 +600,24 @@
       pinMode = !pinMode;
       pinBtn.classList.toggle('active', pinMode);
       pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
-      pinLayer.classList.toggle('active', pinMode);
+      screenshotContainer.classList.toggle('pin-mode', pinMode);
     });
 
-    // Place pin
-    pinLayer.addEventListener('click', (e) => {
+    // Place pin on screenshot
+    screenshotContainer.addEventListener('click', (e) => {
       if (!pinMode) return;
-      
-      const rect = pinLayer.getBoundingClientRect();
+      if (e.target.classList.contains('pin')) return;
+
+      const rect = screenshotImg.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
-      
+
       pendingPin = { x, y };
       pinMode = false;
       pinBtn.classList.remove('active');
       pinBtn.textContent = '📍 Add Comment';
-      pinLayer.classList.remove('active');
-      
+      screenshotContainer.classList.remove('pin-mode');
+
       addForm.classList.add('active');
       commentInput.focus();
       statusMsg.className = 'status-msg';
@@ -584,13 +640,13 @@
     async function submitComment() {
       const text = commentInput.value.trim();
       const author = reviewerName.value.trim() || 'Anonymous';
-      
+
       if (!text) {
         statusMsg.textContent = 'Please enter a comment';
         statusMsg.className = 'status-msg error';
         return;
       }
-      
+
       if (!pendingPin) {
         statusMsg.textContent = 'Please click on the page to place a pin first';
         statusMsg.className = 'status-msg error';
@@ -599,7 +655,7 @@
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Saving...';
-      
+
       try {
         const res = await fetch(`${API}/api/comments`, {
           method: 'POST',
@@ -612,7 +668,7 @@
             y: pendingPin.y
           })
         });
-        
+
         if (res.ok) {
           statusMsg.textContent = 'Comment saved!';
           statusMsg.className = 'status-msg success';
@@ -624,8 +680,7 @@
           }, 500);
           loadComments();
         } else {
-          const err = await res.text();
-          throw new Error(err);
+          throw new Error(await res.text());
         }
       } catch (err) {
         console.error(err);
@@ -640,7 +695,7 @@
     // Load comments
     async function loadComments() {
       if (!currentUrl) return;
-      
+
       try {
         const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
         comments = await res.json();
@@ -650,25 +705,28 @@
       }
     }
 
-    // Render
     function render() {
       renderPins();
       renderComments();
     }
 
     function renderPins() {
-      pinLayer.querySelectorAll('.pin').forEach(p => p.remove());
-      
+      // Remove old pins
+      screenshotContainer.querySelectorAll('.pin').forEach(p => p.remove());
+
       comments.forEach((c, i) => {
         if (c.x == null) return;
-        
+
         const pin = document.createElement('div');
         pin.className = `pin ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}`;
         pin.style.left = c.x + '%';
         pin.style.top = c.y + '%';
         pin.textContent = i + 1;
-        pin.onclick = () => selectComment(c.id);
-        pinLayer.appendChild(pin);
+        pin.onclick = (e) => {
+          e.stopPropagation();
+          selectComment(c.id);
+        };
+        screenshotContainer.appendChild(pin);
       });
     }
 
@@ -678,9 +736,9 @@
         if (filter === 'resolved') return c.resolved;
         return true;
       });
-      
+
       commentCount.textContent = comments.length;
-      
+
       if (filtered.length === 0) {
         commentsList.innerHTML = `
           <div class="empty-state">
@@ -691,13 +749,13 @@
         `;
         return;
       }
-      
+
       commentsList.innerHTML = filtered.map((c) => {
         const num = comments.indexOf(c) + 1;
         const date = new Date(c.timestamp).toLocaleString();
-        
+
         return `
-          <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}" 
+          <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}"
                onclick="selectComment('${c.id}')">
             <div class="comment-header">
               <span class="comment-author">
@@ -725,6 +783,14 @@
     window.selectComment = function(id) {
       selectedId = selectedId === id ? null : id;
       render();
+      
+      // Scroll to pin
+      if (selectedId) {
+        const pin = screenshotContainer.querySelector(`.pin.selected`);
+        if (pin) {
+          pin.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
     };
 
     window.toggleResolve = async function(id, resolved) {
