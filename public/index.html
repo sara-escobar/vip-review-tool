@@ -4,78 +4,725 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VIP Redesign Review Tool</title>
-  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      height: 45px;
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .reviewer-input {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 0.9rem;
+      width: 180px;
+    }
+
+    .reviewer-input::placeholder { color: rgba(255,255,255,0.6); }
+    .reviewer-input:focus { outline: none; border-color: #6c5ce7; }
+
+    /* Page Selector */
+    .page-bar {
+      background: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .page-bar label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .page-select {
+      flex: 1;
+      max-width: 500px;
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .page-select:focus { outline: none; border-color: #6c5ce7; }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #6c5ce7;
+      color: white;
+    }
+
+    .btn-primary:hover { background: #5b4bd4; }
+
+    .btn-pin {
+      background: #00b894;
+      color: white;
+    }
+
+    .btn-pin:hover { background: #00a383; }
+
+    .btn-pin.active {
+      background: #e74c3c;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    }
+
+    /* Main Layout */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Preview Area */
+    .preview-area {
+      flex: 1;
+      position: relative;
+      background: #e0e0e0;
+      overflow: hidden;
+    }
+
+    .frame-container {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .frame-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .pin-layer {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      pointer-events: none;
+      border-radius: 8px;
+    }
+
+    .pin-layer.active {
+      pointer-events: auto;
+      cursor: crosshair;
+      background: rgba(108, 92, 231, 0.1);
+      border: 3px dashed #6c5ce7;
+    }
+
+    .pin {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background: #e74c3c;
+      border: 3px solid white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background 0.2s;
+      z-index: 100;
+    }
+
+    .pin:hover { transform: translate(-50%, -50%) scale(1.15); }
+    .pin.resolved { background: #00b894; }
+    .pin.selected { background: #6c5ce7; transform: translate(-50%, -50%) scale(1.2); }
+
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+    }
+
+    .placeholder-icon { font-size: 4rem; margin-bottom: 16px; }
+
+    /* Comments Panel */
+    .comments-panel {
+      width: 380px;
+      background: white;
+      border-left: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header h2 { font-size: 1.1rem; }
+
+    .comment-count {
+      background: #6c5ce7;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .filters {
+      padding: 12px 20px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border: none;
+      background: #f0f2f5;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { background: #e0e0e0; }
+    .filter-btn.active { background: #6c5ce7; color: white; }
+
+    .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .comment-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .comment-card:hover { background: #f0f2f5; }
+    .comment-card.selected { border-color: #6c5ce7; background: #f0ebff; }
+    .comment-card.resolved { opacity: 0.6; }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .comment-author {
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pin-badge {
+      background: #e74c3c;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .comment-card.resolved .pin-badge { background: #00b894; }
+
+    .comment-text {
+      color: #444;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .comment-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .comment-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #666;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .comment-actions button:hover { background: #e0e0e0; }
+    .comment-actions .resolve:hover { color: #00b894; }
+    .comment-actions .delete:hover { color: #e74c3c; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+
+    .empty-state span { font-size: 3rem; display: block; margin-bottom: 16px; }
+
+    /* Add Comment Form */
+    .add-form {
+      padding: 16px;
+      background: #f8f9fa;
+      border-top: 1px solid #eee;
+      display: none;
+    }
+
+    .add-form.active { display: block; }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .form-header span {
+      font-weight: 600;
+      color: #6c5ce7;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .add-form textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 12px;
+    }
+
+    .add-form textarea:focus { outline: none; border-color: #6c5ce7; }
+
+    .form-footer { display: flex; justify-content: flex-end; }
+  </style>
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-brand">
-      <img src="https://www.vipmedicalgroup.ai/wp-content/uploads/2024/03/vip-logo.png" alt="VIP Logo" class="logo" onerror="this.style.display='none'">
+  <header class="header">
+    <div class="header-left">
+      <img src="https://www.vipmedicalgroup.com/wp-content/uploads/2024/03/vip-logo.png" alt="VIP" class="logo">
       <h1>VIP Redesign Review Tool</h1>
     </div>
-    <div class="navbar-actions">
-      <span class="author-label">Reviewing as:</span>
-      <input type="text" id="authorName" placeholder="Your name" class="author-input">
+    <div class="header-right">
+      <input type="text" id="reviewerName" class="reviewer-input" placeholder="Your name">
     </div>
   </header>
 
-  <div class="url-bar">
-    <input type="text" id="pageUrl" placeholder="Enter page URL to review (e.g., https://veintreatmentclinic.com/)" class="url-input">
-    <button id="loadPage" class="btn btn-primary">Load Page</button>
-    <button id="toggleMode" class="btn btn-secondary">
-      <span class="mode-icon">📍</span>
-      <span class="mode-text">Add Pin</span>
-    </button>
+  <div class="page-bar">
+    <label>Select Page:</label>
+    <select id="pageSelect" class="page-select">
+      <option value="">-- Choose a page to review --</option>
+      <option value="https://www.vipmedicalgroup.com/">Home</option>
+      <option value="https://www.vipmedicalgroup.com/about-us/">About Us</option>
+      <option value="https://www.vipmedicalgroup.com/services/">Services</option>
+      <option value="https://www.vipmedicalgroup.com/locations/">Locations</option>
+      <option value="https://www.vipmedicalgroup.com/contact/">Contact</option>
+      <option value="https://www.vipmedicalgroup.com/blog/">Blog</option>
+    </select>
+    <button id="loadBtn" class="btn btn-primary">Load Page</button>
+    <button id="pinBtn" class="btn btn-pin">📍 Add Comment</button>
   </div>
 
-  <main class="main-content">
-    <div class="preview-container">
-      <div class="preview-wrapper" id="previewWrapper">
-        <iframe id="pageFrame" src="about:blank"></iframe>
-        <div class="pin-overlay" id="pinOverlay"></div>
-        <div class="pins-container" id="pinsContainer"></div>
+  <main class="main">
+    <div class="preview-area">
+      <div class="frame-container" id="frameContainer" style="display:none;">
+        <iframe id="previewFrame"></iframe>
       </div>
-      <div class="preview-placeholder" id="placeholder">
-        <div class="placeholder-content">
-          <span class="placeholder-icon">🔗</span>
-          <p>Enter a URL above to start reviewing</p>
-        </div>
+      <div class="pin-layer" id="pinLayer"></div>
+      <div class="placeholder" id="placeholder">
+        <span class="placeholder-icon">🔍</span>
+        <p>Select a page above to start reviewing</p>
       </div>
     </div>
 
     <aside class="comments-panel">
-      <div class="comments-header">
+      <div class="panel-header">
         <h2>Comments</h2>
         <span class="comment-count" id="commentCount">0</span>
       </div>
       
-      <div class="comments-filters">
+      <div class="filters">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="open">Open</button>
         <button class="filter-btn" data-filter="resolved">Resolved</button>
       </div>
 
       <div class="comments-list" id="commentsList">
-        <div class="no-comments">
+        <div class="empty-state">
           <span>💬</span>
           <p>No comments yet</p>
-          <p class="hint">Click "Add Pin" then click on the page to add a comment</p>
+          <p style="font-size:0.85rem;margin-top:8px;">Click "Add Comment" and click on the page</p>
         </div>
       </div>
 
-      <div class="add-comment-form" id="addCommentForm" style="display: none;">
+      <div class="add-form" id="addForm">
         <div class="form-header">
-          <span class="pin-indicator">📍 New Pin</span>
-          <button class="btn-close" id="cancelComment">×</button>
+          <span>📍 New Comment</span>
+          <button class="close-btn" id="closeForm">×</button>
         </div>
-        <textarea id="commentText" placeholder="What's your feedback?" rows="3"></textarea>
-        <div class="form-actions">
-          <button id="submitComment" class="btn btn-primary">Add Comment</button>
+        <textarea id="commentInput" placeholder="What feedback do you have?"></textarea>
+        <div class="form-footer">
+          <button class="btn btn-primary" id="submitBtn">Add Comment</button>
         </div>
       </div>
     </aside>
   </main>
 
-  <script src="app.js"></script>
+  <script>
+    const API = window.location.origin;
+    let currentUrl = '';
+    let comments = [];
+    let pinMode = false;
+    let pendingPin = null;
+    let selectedId = null;
+    let filter = 'all';
+
+    // Elements
+    const pageSelect = document.getElementById('pageSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    const pinBtn = document.getElementById('pinBtn');
+    const previewFrame = document.getElementById('previewFrame');
+    const frameContainer = document.getElementById('frameContainer');
+    const pinLayer = document.getElementById('pinLayer');
+    const placeholder = document.getElementById('placeholder');
+    const commentsList = document.getElementById('commentsList');
+    const commentCount = document.getElementById('commentCount');
+    const addForm = document.getElementById('addForm');
+    const commentInput = document.getElementById('commentInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const closeForm = document.getElementById('closeForm');
+    const reviewerName = document.getElementById('reviewerName');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    // Load saved name
+    reviewerName.value = localStorage.getItem('reviewerName') || '';
+    reviewerName.addEventListener('change', () => {
+      localStorage.setItem('reviewerName', reviewerName.value);
+    });
+
+    // Load page
+    loadBtn.addEventListener('click', loadPage);
+    pageSelect.addEventListener('change', () => {
+      if (pageSelect.value) loadPage();
+    });
+
+    function loadPage() {
+      const url = pageSelect.value;
+      if (!url) return alert('Please select a page');
+      
+      currentUrl = url;
+      previewFrame.src = url;
+      frameContainer.style.display = 'block';
+      placeholder.style.display = 'none';
+      loadComments();
+    }
+
+    // Pin mode
+    pinBtn.addEventListener('click', () => {
+      if (!currentUrl) return alert('Load a page first');
+      pinMode = !pinMode;
+      pinBtn.classList.toggle('active', pinMode);
+      pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
+      pinLayer.classList.toggle('active', pinMode);
+    });
+
+    // Place pin
+    pinLayer.addEventListener('click', (e) => {
+      if (!pinMode) return;
+      
+      const rect = pinLayer.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      
+      pendingPin = { x, y };
+      pinMode = false;
+      pinBtn.classList.remove('active');
+      pinBtn.textContent = '📍 Add Comment';
+      pinLayer.classList.remove('active');
+      
+      addForm.classList.add('active');
+      commentInput.focus();
+    });
+
+    // Close form
+    closeForm.addEventListener('click', () => {
+      addForm.classList.remove('active');
+      commentInput.value = '';
+      pendingPin = null;
+    });
+
+    // Submit comment
+    submitBtn.addEventListener('click', submitComment);
+    commentInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) submitComment();
+    });
+
+    async function submitComment() {
+      const text = commentInput.value.trim();
+      const author = reviewerName.value.trim() || 'Anonymous';
+      
+      if (!text) return alert('Please enter a comment');
+      if (!pendingPin) return alert('Please click on the page to place a pin');
+      
+      try {
+        const res = await fetch(`${API}/api/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: currentUrl,
+            comment: text,
+            author,
+            x: pendingPin.x,
+            y: pendingPin.y
+          })
+        });
+        
+        if (res.ok) {
+          addForm.classList.remove('active');
+          commentInput.value = '';
+          pendingPin = null;
+          loadComments();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error saving comment');
+      }
+    }
+
+    // Load comments
+    async function loadComments() {
+      if (!currentUrl) return;
+      
+      try {
+        const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
+        comments = await res.json();
+        render();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Render
+    function render() {
+      renderPins();
+      renderComments();
+    }
+
+    function renderPins() {
+      // Clear old pins
+      pinLayer.querySelectorAll('.pin').forEach(p => p.remove());
+      
+      comments.forEach((c, i) => {
+        if (c.x == null) return;
+        
+        const pin = document.createElement('div');
+        pin.className = `pin ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}`;
+        pin.style.left = c.x + '%';
+        pin.style.top = c.y + '%';
+        pin.textContent = i + 1;
+        pin.onclick = () => selectComment(c.id);
+        pinLayer.appendChild(pin);
+      });
+    }
+
+    function renderComments() {
+      const filtered = comments.filter(c => {
+        if (filter === 'open') return !c.resolved;
+        if (filter === 'resolved') return c.resolved;
+        return true;
+      });
+      
+      commentCount.textContent = comments.length;
+      
+      if (filtered.length === 0) {
+        commentsList.innerHTML = `
+          <div class="empty-state">
+            <span>💬</span>
+            <p>No comments yet</p>
+            <p style="font-size:0.85rem;margin-top:8px;">Click "Add Comment" and click on the page</p>
+          </div>
+        `;
+        return;
+      }
+      
+      commentsList.innerHTML = filtered.map((c, i) => {
+        const num = comments.indexOf(c) + 1;
+        const date = new Date(c.timestamp).toLocaleString();
+        
+        return `
+          <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}" 
+               onclick="selectComment('${c.id}')">
+            <div class="comment-header">
+              <span class="comment-author">
+                <span class="pin-badge">${num}</span>
+                ${escapeHtml(c.author)}
+              </span>
+            </div>
+            <p class="comment-text">${escapeHtml(c.comment)}</p>
+            <div class="comment-meta">
+              <span>${date}</span>
+              <div class="comment-actions">
+                <button class="resolve" onclick="event.stopPropagation(); toggleResolve('${c.id}', ${!c.resolved})">
+                  ${c.resolved ? '↩ Reopen' : '✓ Resolve'}
+                </button>
+                <button class="delete" onclick="event.stopPropagation(); deleteComment('${c.id}')">
+                  🗑 Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Select comment
+    window.selectComment = function(id) {
+      selectedId = selectedId === id ? null : id;
+      render();
+    };
+
+    // Toggle resolve
+    window.toggleResolve = async function(id, resolved) {
+      try {
+        await fetch(`${API}/api/comments/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: currentUrl, resolved })
+        });
+        loadComments();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Delete
+    window.deleteComment = async function(id) {
+      if (!confirm('Delete this comment?')) return;
+      try {
+        await fetch(`${API}/api/comments/${id}?url=${encodeURIComponent(currentUrl)}`, {
+          method: 'DELETE'
+        });
+        loadComments();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Filters
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        renderComments();
+      });
+    });
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
 </body>
 </html>
