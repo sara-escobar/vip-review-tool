@@ -42,16 +42,16 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .reviewer-input {
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.3);
       border-radius: 25px;
-      padding: 10px 14px;
+      padding: 10px 16px;
       color: white;
-      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
       width: 180px;
     }
@@ -61,10 +61,10 @@
 
     .page-bar {
       background: white;
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       border-bottom: 1px solid #ddd;
       flex-wrap: wrap;
     }
@@ -75,10 +75,10 @@
       flex: 1;
       min-width: 300px;
       max-width: 500px;
-      padding: 10px 14px;
+      padding: 10px 16px;
       border: 2px solid #e0e0e0;
       border-radius: 25px;
-      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 0.95rem;
       cursor: pointer;
     }
@@ -86,10 +86,10 @@
     .page-select:focus { outline: none; border-color: #6c5ce7; }
 
     .btn {
-      padding: 10px 20px;
+      padding: 10px 22px;
       border: none;
       border-radius: 25px;
-      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
@@ -98,23 +98,10 @@
 
     .btn-primary { background: #6c5ce7; color: white; }
     .btn-primary:hover { background: #5b4bd4; }
-    .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
 
     .btn-pin { background: #00b894; color: white; }
     .btn-pin:hover { background: #00a383; }
-
-    .btn-pin.active {
-      background: #e74c3c;
-      animation: pulse 1s infinite;
-    }
-
-    .btn-refresh { background: #74b9ff; color: white; }
-    .btn-refresh:hover { background: #0984e3; }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
-      50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-    }
+    .btn-pin.active { background: #e74c3c; }
 
     .main {
       flex: 1;
@@ -126,61 +113,14 @@
       flex: 1;
       position: relative;
       background: #e0e0e0;
-      overflow: auto;
     }
 
-    .screenshot-container {
-      position: relative;
-      margin: 16px;
-      display: inline-block;
+    .preview-area iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      overflow: hidden;
     }
-
-    .screenshot-container img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .screenshot-container.pin-mode {
-      cursor: crosshair;
-    }
-
-    .screenshot-container.pin-mode::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(108, 92, 231, 0.1);
-      border: 3px dashed #6c5ce7;
-      pointer-events: none;
-    }
-
-    .pin {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: #e74c3c;
-      border: 3px solid white;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: transform 0.2s, background 0.2s;
-      z-index: 100;
-    }
-
-    .pin:hover { transform: translate(-50%, -50%) scale(1.15); }
-    .pin.resolved { background: #00b894; }
-    .pin.selected { background: #6c5ce7; transform: translate(-50%, -50%) scale(1.2); }
 
     .placeholder {
       position: absolute;
@@ -190,38 +130,13 @@
       align-items: center;
       justify-content: center;
       color: #666;
+      background: #e0e0e0;
     }
 
     .placeholder-icon { font-size: 4rem; margin-bottom: 16px; }
 
-    .loading {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.9);
-      color: #333;
-      z-index: 200;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e0e0e0;
-      border-top-color: #6c5ce7;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     .comments-panel {
-      width: 400px;
+      width: 380px;
       background: white;
       border-left: 1px solid #ddd;
       display: flex;
@@ -229,20 +144,20 @@
     }
 
     .panel-header {
-      padding: 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid #eee;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .panel-header h2 { font-size: 1.1rem; }
+    .panel-header h2 { font-size: 1.1rem; font-weight: 600; }
 
     .comment-count {
       background: #6c5ce7;
       color: white;
       padding: 4px 12px;
-      border-radius: 20px;
+      border-radius: 25px;
       font-size: 0.85rem;
       font-weight: 600;
     }
@@ -259,7 +174,7 @@
       border: none;
       background: #f0f2f5;
       border-radius: 25px;
-      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 0.8rem;
       cursor: pointer;
     }
@@ -276,10 +191,11 @@
     .comment-card {
       background: #f8f9fa;
       border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       cursor: pointer;
       border: 2px solid transparent;
+      transition: all 0.15s;
     }
 
     .comment-card:hover { background: #f0f2f5; }
@@ -288,30 +204,27 @@
 
     .comment-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .comment-author {
       font-weight: 600;
       color: #333;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
 
     .pin-badge {
       background: #e74c3c;
       color: white;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: 700;
     }
 
@@ -319,42 +232,41 @@
 
     .comment-text {
       color: #444;
-      line-height: 1.6;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
     }
 
     .comment-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #888;
     }
 
-    .comment-actions { display: flex; gap: 12px; }
+    .comment-actions { display: flex; gap: 10px; }
 
     .comment-actions button {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      font-family: 'DM Sans', sans-serif;
       color: #666;
       padding: 4px 8px;
-      border-radius: 4px;
+      border-radius: 25px;
     }
 
     .comment-actions button:hover { background: #e0e0e0; }
-    .comment-actions .resolve:hover { color: #00b894; }
-    .comment-actions .delete:hover { color: #e74c3c; }
 
     .empty-state {
       text-align: center;
-      padding: 60px 20px;
+      padding: 50px 20px;
       color: #888;
     }
 
-    .empty-state span { font-size: 3rem; display: block; margin-bottom: 16px; }
+    .empty-state span { font-size: 3rem; display: block; margin-bottom: 12px; }
 
     .add-form {
       padding: 16px;
@@ -386,11 +298,11 @@
       width: 100%;
       padding: 12px;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-family: inherit;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
       resize: vertical;
-      min-height: 100px;
+      min-height: 80px;
       margin-bottom: 12px;
     }
 
@@ -399,9 +311,9 @@
     .form-footer { display: flex; justify-content: flex-end; }
 
     .status-msg {
-      padding: 8px 16px;
-      margin-bottom: 12px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+      border-radius: 8px;
       font-size: 0.85rem;
       display: none;
     }
@@ -421,9 +333,9 @@
   </header>
 
   <div class="page-bar">
-    <label>Select Page:</label>
+    <label>Page:</label>
     <select id="pageSelect" class="page-select">
-      <option value="">-- Choose a page to review --</option>
+      <option value="">-- Select a page --</option>
       <optgroup label="Main Pages">
         <option value="https://www.vipmedicalgroup.com/">Home</option>
         <option value="https://www.vipmedicalgroup.com/about-us/">About Us</option>
@@ -450,28 +362,17 @@
         <option value="https://www.vipmedicalgroup.com/referrals/">Referrals</option>
         <option value="https://www.vipmedicalgroup.com/how-referral-process-works/">How Referral Process Works</option>
       </optgroup>
-      <optgroup label="Legal">
-        <option value="https://www.vipmedicalgroup.com/privacy-policy/">Privacy Policy</option>
-        <option value="https://www.vipmedicalgroup.com/terms-of-use/">Terms of Use</option>
-      </optgroup>
     </select>
-    <button id="loadBtn" class="btn btn-primary">Load Page</button>
-    <button id="refreshBtn" class="btn btn-refresh" style="display:none;">🔄 Refresh Screenshot</button>
+    <button id="loadBtn" class="btn btn-primary">Load</button>
     <button id="pinBtn" class="btn btn-pin">📍 Add Comment</button>
   </div>
 
   <main class="main">
-    <div class="preview-area" id="previewArea">
-      <div class="screenshot-container" id="screenshotContainer" style="display:none;">
-        <img id="screenshotImg" src="" alt="Page screenshot">
-      </div>
+    <div class="preview-area">
+      <iframe id="previewFrame" style="display:none;"></iframe>
       <div class="placeholder" id="placeholder">
         <span class="placeholder-icon">🔍</span>
-        <p>Select a page above to start reviewing</p>
-      </div>
-      <div class="loading" id="loading" style="display:none;">
-        <div class="spinner"></div>
-        <p>Capturing page screenshot...</p>
+        <p>Select a page to start reviewing</p>
       </div>
     </div>
 
@@ -491,7 +392,6 @@
         <div class="empty-state">
           <span>💬</span>
           <p>No comments yet</p>
-          <p style="font-size:0.85rem;margin-top:8px;">Click "Add Comment" and click on the page</p>
         </div>
       </div>
 
@@ -501,9 +401,9 @@
           <button class="close-btn" id="closeForm">×</button>
         </div>
         <div class="status-msg" id="statusMsg"></div>
-        <textarea id="commentInput" placeholder="What feedback do you have?"></textarea>
+        <textarea id="commentInput" placeholder="What's your feedback?"></textarea>
         <div class="form-footer">
-          <button class="btn btn-primary" id="submitBtn">Submit Comment</button>
+          <button class="btn btn-primary" id="submitBtn">Submit</button>
         </div>
       </div>
     </aside>
@@ -519,16 +419,11 @@
     let selectedId = null;
     let filter = 'all';
 
-    // Elements
     const pageSelect = document.getElementById('pageSelect');
     const loadBtn = document.getElementById('loadBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
     const pinBtn = document.getElementById('pinBtn');
-    const screenshotContainer = document.getElementById('screenshotContainer');
-    const screenshotImg = document.getElementById('screenshotImg');
+    const previewFrame = document.getElementById('previewFrame');
     const placeholder = document.getElementById('placeholder');
-    const loading = document.getElementById('loading');
-    const previewArea = document.getElementById('previewArea');
     const commentsList = document.getElementById('commentsList');
     const commentCount = document.getElementById('commentCount');
     const addForm = document.getElementById('addForm');
@@ -541,61 +436,21 @@
 
     // Load saved name
     reviewerName.value = localStorage.getItem('reviewerName') || '';
-    reviewerName.addEventListener('change', () => {
-      localStorage.setItem('reviewerName', reviewerName.value);
-    });
+    reviewerName.addEventListener('change', () => localStorage.setItem('reviewerName', reviewerName.value));
 
     // Load page
-    loadBtn.addEventListener('click', () => loadPage(false));
-    refreshBtn.addEventListener('click', () => loadPage(true));
-    pageSelect.addEventListener('change', () => {
-      if (pageSelect.value) loadPage(false);
-    });
+    loadBtn.addEventListener('click', loadPage);
+    pageSelect.addEventListener('change', () => { if (pageSelect.value) loadPage(); });
 
-    async function loadPage(refresh = false) {
+    function loadPage() {
       const url = pageSelect.value;
-      if (!url) return alert('Please select a page');
+      if (!url) return;
       
       currentUrl = url;
+      previewFrame.src = `${API}/api/proxy?url=${encodeURIComponent(url)}`;
+      previewFrame.style.display = 'block';
       placeholder.style.display = 'none';
-      screenshotContainer.style.display = 'none';
-      loading.style.display = 'flex';
-      loadBtn.disabled = true;
-
-      try {
-        const res = await fetch(`${API}/api/screenshot`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, refresh })
-        });
-
-        const data = await res.json();
-        
-        if (data.error) throw new Error(data.error);
-
-        // Add cache buster for refreshed screenshots
-        const imgUrl = refresh ? `${data.screenshot}?t=${Date.now()}` : data.screenshot;
-        screenshotImg.src = imgUrl;
-        
-        screenshotImg.onload = () => {
-          loading.style.display = 'none';
-          screenshotContainer.style.display = 'inline-block';
-          refreshBtn.style.display = 'inline-block';
-          loadComments();
-        };
-
-        screenshotImg.onerror = () => {
-          throw new Error('Failed to load screenshot');
-        };
-
-      } catch (err) {
-        console.error(err);
-        loading.style.display = 'none';
-        placeholder.style.display = 'flex';
-        alert('Error loading page: ' + err.message);
-      } finally {
-        loadBtn.disabled = false;
-      }
+      loadComments();
     }
 
     // Pin mode
@@ -604,27 +459,26 @@
       pinMode = !pinMode;
       pinBtn.classList.toggle('active', pinMode);
       pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
-      screenshotContainer.classList.toggle('pin-mode', pinMode);
+      
+      // Tell iframe to enter/exit pin mode
+      previewFrame.contentWindow.postMessage({ 
+        type: pinMode ? 'ENTER_PIN_MODE' : 'EXIT_PIN_MODE' 
+      }, '*');
     });
 
-    // Place pin on screenshot
-    screenshotContainer.addEventListener('click', (e) => {
-      if (!pinMode) return;
-      if (e.target.classList.contains('pin')) return;
-
-      const rect = screenshotImg.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-      pendingPin = { x, y };
-      pinMode = false;
-      pinBtn.classList.remove('active');
-      pinBtn.textContent = '📍 Add Comment';
-      screenshotContainer.classList.remove('pin-mode');
-
-      addForm.classList.add('active');
-      commentInput.focus();
-      statusMsg.className = 'status-msg';
+    // Listen for messages from iframe
+    window.addEventListener('message', (e) => {
+      if (e.data.type === 'PIN_PLACED') {
+        pendingPin = { x: e.data.x, y: e.data.y };
+        pinMode = false;
+        pinBtn.classList.remove('active');
+        pinBtn.textContent = '📍 Add Comment';
+        addForm.classList.add('active');
+        commentInput.focus();
+      } else if (e.data.type === 'SELECT_COMMENT') {
+        selectedId = e.data.id;
+        renderComments();
+      }
     });
 
     // Close form
@@ -651,14 +505,7 @@
         return;
       }
 
-      if (!pendingPin) {
-        statusMsg.textContent = 'Please click on the page to place a pin first';
-        statusMsg.className = 'status-msg error';
-        return;
-      }
-
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving...';
 
       try {
         const res = await fetch(`${API}/api/comments`, {
@@ -668,70 +515,37 @@
             url: currentUrl,
             comment: text,
             author,
-            x: pendingPin.x,
-            y: pendingPin.y
+            x: pendingPin?.x,
+            y: pendingPin?.y
           })
         });
 
         if (res.ok) {
-          statusMsg.textContent = 'Comment saved!';
-          statusMsg.className = 'status-msg success';
-          setTimeout(() => {
-            addForm.classList.remove('active');
-            commentInput.value = '';
-            pendingPin = null;
-            statusMsg.className = 'status-msg';
-          }, 500);
+          addForm.classList.remove('active');
+          commentInput.value = '';
+          pendingPin = null;
           loadComments();
-        } else {
-          throw new Error(await res.text());
+          // Tell iframe to reload markers
+          previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
         }
       } catch (err) {
-        console.error(err);
-        statusMsg.textContent = 'Error saving comment: ' + err.message;
+        statusMsg.textContent = 'Error: ' + err.message;
         statusMsg.className = 'status-msg error';
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Comment';
       }
     }
 
     // Load comments
     async function loadComments() {
       if (!currentUrl) return;
-
       try {
         const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
         comments = await res.json();
-        render();
+        renderComments();
       } catch (err) {
-        console.error('Error loading comments:', err);
+        console.error(err);
       }
-    }
-
-    function render() {
-      renderPins();
-      renderComments();
-    }
-
-    function renderPins() {
-      // Remove old pins
-      screenshotContainer.querySelectorAll('.pin').forEach(p => p.remove());
-
-      comments.forEach((c, i) => {
-        if (c.x == null) return;
-
-        const pin = document.createElement('div');
-        pin.className = `pin ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}`;
-        pin.style.left = c.x + '%';
-        pin.style.top = c.y + '%';
-        pin.textContent = i + 1;
-        pin.onclick = (e) => {
-          e.stopPropagation();
-          selectComment(c.id);
-        };
-        screenshotContainer.appendChild(pin);
-      });
     }
 
     function renderComments() {
@@ -744,39 +558,28 @@
       commentCount.textContent = comments.length;
 
       if (filtered.length === 0) {
-        commentsList.innerHTML = `
-          <div class="empty-state">
-            <span>💬</span>
-            <p>No comments yet</p>
-            <p style="font-size:0.85rem;margin-top:8px;">Click "Add Comment" and click on the page</p>
-          </div>
-        `;
+        commentsList.innerHTML = `<div class="empty-state"><span>💬</span><p>No comments yet</p></div>`;
         return;
       }
 
-      commentsList.innerHTML = filtered.map((c) => {
+      commentsList.innerHTML = filtered.map(c => {
         const num = comments.indexOf(c) + 1;
         const date = new Date(c.timestamp).toLocaleString();
-
         return `
           <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}"
                onclick="selectComment('${c.id}')">
             <div class="comment-header">
-              <span class="comment-author">
-                <span class="pin-badge">${num}</span>
-                ${escapeHtml(c.author)}
-              </span>
+              <span class="pin-badge">${num}</span>
+              <span class="comment-author">${escapeHtml(c.author)}</span>
             </div>
             <p class="comment-text">${escapeHtml(c.comment)}</p>
             <div class="comment-meta">
               <span>${date}</span>
               <div class="comment-actions">
-                <button class="resolve" onclick="event.stopPropagation(); toggleResolve('${c.id}', ${!c.resolved})">
+                <button onclick="event.stopPropagation(); toggleResolve('${c.id}', ${!c.resolved})">
                   ${c.resolved ? '↩ Reopen' : '✓ Resolve'}
                 </button>
-                <button class="delete" onclick="event.stopPropagation(); deleteComment('${c.id}')">
-                  🗑 Delete
-                </button>
+                <button onclick="event.stopPropagation(); deleteComment('${c.id}')">🗑</button>
               </div>
             </div>
           </div>
@@ -786,40 +589,25 @@
 
     window.selectComment = function(id) {
       selectedId = selectedId === id ? null : id;
-      render();
-      
-      // Scroll to pin
-      if (selectedId) {
-        const pin = screenshotContainer.querySelector(`.pin.selected`);
-        if (pin) {
-          pin.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
+      renderComments();
+      previewFrame.contentWindow.postMessage({ type: 'SELECT_COMMENT', id: selectedId }, '*');
     };
 
     window.toggleResolve = async function(id, resolved) {
-      try {
-        await fetch(`${API}/api/comments/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: currentUrl, resolved })
-        });
-        loadComments();
-      } catch (err) {
-        console.error(err);
-      }
+      await fetch(`${API}/api/comments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: currentUrl, resolved })
+      });
+      loadComments();
+      previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
     };
 
     window.deleteComment = async function(id) {
-      if (!confirm('Delete this comment?')) return;
-      try {
-        await fetch(`${API}/api/comments/${id}?url=${encodeURIComponent(currentUrl)}`, {
-          method: 'DELETE'
-        });
-        loadComments();
-      } catch (err) {
-        console.error(err);
-      }
+      if (!confirm('Delete?')) return;
+      await fetch(`${API}/api/comments/${id}?url=${encodeURIComponent(currentUrl)}`, { method: 'DELETE' });
+      loadComments();
+      previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
     };
 
     filterBtns.forEach(btn => {
