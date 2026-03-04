@@ -2,12 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
-const http = require('http');
+const puppeteer = require('puppeteer');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3456;
 const DATA_FILE = path.join(__dirname, 'comments.json');
+const SCREENSHOTS_DIR = path.join(__dirname, 'public', 'screenshots');
+
+// Ensure directories exist
+if (!fs.existsSync(SCREENSHOTS_DIR)) {
+  fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
+}
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -18,300 +24,156 @@ if (!fs.existsSync(DATA_FILE)) {
   fs.writeFileSync(DATA_FILE, JSON.stringify({ pages: {} }, null, 2));
 }
 
-// Fetch and proxy a page with injected comment system
-app.get('/api/proxy', async (req, res) => {
-  const { url } = req.query;
-  if (!url) return res.status(400).send('URL required');
-  
-  if (!url.startsWith('https://www.vipmedicalgroup.com')) {
-    return res.status(400).send('Only VIP Medical Group URLs allowed');
+// All VIP pages
+const VIP_PAGES = [
+  { name: 'Home', url: 'https://www.vipmedicalgroup.com/' },
+  { name: 'About Us', url: 'https://www.vipmedicalgroup.com/about-us/' },
+  { name: 'Meet Our Doctors', url: 'https://www.vipmedicalgroup.com/meet-our-doctors/' },
+  { name: 'Meet Our Team', url: 'https://www.vipmedicalgroup.com/meet-our-team/' },
+  { name: 'What to Expect', url: 'https://www.vipmedicalgroup.com/what-to-expect/' },
+  { name: 'Your Visit', url: 'https://www.vipmedicalgroup.com/your-visit/' },
+  { name: 'Locations', url: 'https://www.vipmedicalgroup.com/locations/' },
+  { name: 'Book Appointment', url: 'https://www.vipmedicalgroup.com/book-appointment/' },
+  { name: 'Careers', url: 'https://www.vipmedicalgroup.com/careers/' },
+  { name: 'Vein Treatments', url: 'https://www.vipmedicalgroup.com/vein-treatments/' },
+  { name: 'Spider Veins', url: 'https://www.vipmedicalgroup.com/vein-treatment/spider-veins/' },
+  { name: 'Varicose Veins', url: 'https://www.vipmedicalgroup.com/vein-treatment/varicose-veins/' },
+  { name: 'Chronic Venous Insufficiency', url: 'https://www.vipmedicalgroup.com/vein-treatment/chronic-venous-insufficiency/' },
+  { name: 'Vein Treatment Results', url: 'https://www.vipmedicalgroup.com/vein-treatment-results/' },
+  { name: 'Pain Treatments', url: 'https://www.vipmedicalgroup.com/pain-treatments/' },
+  { name: 'Pain Treatment Results', url: 'https://www.vipmedicalgroup.com/pain-treatment-results/' },
+  { name: 'Referrals', url: 'https://www.vipmedicalgroup.com/referrals/' },
+  { name: 'How Referral Process Works', url: 'https://www.vipmedicalgroup.com/how-referral-process-works/' },
+];
+
+// Browser instance
+let browser = null;
+
+async function getBrowser() {
+  if (!browser) {
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+  }
+  return browser;
+}
+
+// Generate screenshot filename from URL
+function getScreenshotFilename(url) {
+  const hash = crypto.createHash('md5').update(url).digest('hex').slice(0, 12);
+  return `${hash}.png`;
+}
+
+// Get list of pages with screenshot status
+app.get('/api/pages', (req, res) => {
+  const pages = VIP_PAGES.map(p => {
+    const filename = getScreenshotFilename(p.url);
+    const filepath = path.join(SCREENSHOTS_DIR, filename);
+    const hasScreenshot = fs.existsSync(filepath);
+    
+    // Get comment count
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const comments = data.pages[p.url] || [];
+    
+    return {
+      ...p,
+      filename,
+      hasScreenshot,
+      screenshotUrl: hasScreenshot ? `/screenshots/${filename}` : null,
+      commentCount: comments.length,
+      openComments: comments.filter(c => !c.resolved).length
+    };
+  });
+  res.json(pages);
+});
+
+// Capture screenshot of a single page
+app.post('/api/screenshot', async (req, res) => {
+  const { url, refresh } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  const page = VIP_PAGES.find(p => p.url === url);
+  if (!page) return res.status(400).json({ error: 'URL not in allowed list' });
+
+  const filename = getScreenshotFilename(url);
+  const filepath = path.join(SCREENSHOTS_DIR, filename);
+
+  // Return cached if exists and not refreshing
+  if (!refresh && fs.existsSync(filepath)) {
+    return res.json({ 
+      screenshot: `/screenshots/${filename}`,
+      cached: true
+    });
   }
 
   try {
-    const html = await fetchPage(url);
-    const injectedHtml = injectCommentSystem(html, url);
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(injectedHtml);
-  } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).send('Failed to load page: ' + err.message);
+    const browserInstance = await getBrowser();
+    const browserPage = await browserInstance.newPage();
+    
+    await browserPage.setViewport({ width: 1400, height: 900 });
+    await browserPage.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+    await browserPage.evaluate(() => new Promise(r => setTimeout(r, 2000)));
+    
+    await browserPage.screenshot({
+      path: filepath,
+      fullPage: true
+    });
+
+    await browserPage.close();
+
+    res.json({ 
+      screenshot: `/screenshots/${filename}`,
+      cached: false
+    });
+  } catch (error) {
+    console.error('Screenshot error:', error);
+    res.status(500).json({ error: 'Failed to capture: ' + error.message });
   }
 });
 
-function fetchPage(url) {
-  return new Promise((resolve, reject) => {
-    const client = url.startsWith('https') ? https : http;
-    const options = {
-      headers: { 
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5'
+// Capture all screenshots
+app.post('/api/screenshot/all', async (req, res) => {
+  const { refresh } = req.body;
+  const results = [];
+
+  try {
+    const browserInstance = await getBrowser();
+
+    for (const page of VIP_PAGES) {
+      const filename = getScreenshotFilename(page.url);
+      const filepath = path.join(SCREENSHOTS_DIR, filename);
+
+      if (!refresh && fs.existsSync(filepath)) {
+        results.push({ url: page.url, name: page.name, status: 'cached' });
+        continue;
       }
-    };
-    
-    client.get(url, options, (response) => {
-      // Handle redirects
-      if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-        let redirectUrl = response.headers.location;
-        if (!redirectUrl.startsWith('http')) {
-          const urlObj = new URL(url);
-          redirectUrl = urlObj.origin + redirectUrl;
-        }
-        return fetchPage(redirectUrl).then(resolve).catch(reject);
+
+      try {
+        const browserPage = await browserInstance.newPage();
+        await browserPage.setViewport({ width: 1400, height: 900 });
+        await browserPage.goto(page.url, { waitUntil: 'networkidle2', timeout: 60000 });
+        await browserPage.evaluate(() => new Promise(r => setTimeout(r, 2000)));
+        
+        await browserPage.screenshot({
+          path: filepath,
+          fullPage: true
+        });
+
+        await browserPage.close();
+        results.push({ url: page.url, name: page.name, status: 'captured' });
+        console.log(`Captured: ${page.name}`);
+      } catch (err) {
+        results.push({ url: page.url, name: page.name, status: 'error', error: err.message });
+        console.error(`Error capturing ${page.name}:`, err.message);
       }
-      
-      let chunks = [];
-      response.on('data', chunk => chunks.push(chunk));
-      response.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        resolve(buffer.toString('utf8'));
-      });
-    }).on('error', reject);
-  });
-}
-
-function injectCommentSystem(html, pageUrl) {
-  // Fix relative URLs to absolute
-  const baseUrl = 'https://www.vipmedicalgroup.com';
-  
-  // Add base tag if not present
-  let modifiedHtml = html;
-  if (!modifiedHtml.includes('<base')) {
-    modifiedHtml = modifiedHtml.replace('<head>', `<head><base href="${baseUrl}/">`);
-  }
-
-  const commentScript = `
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  .vip-review-marker {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    background: #e74c3c;
-    border: 3px solid white;
-    border-radius: 50%;
-    color: white;
-    font-size: 14px;
-    font-weight: 700;
-    font-family: 'DM Sans', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2147483647;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
-    pointer-events: auto !important;
-  }
-  .vip-review-marker:hover { transform: scale(1.15); }
-  .vip-review-marker.resolved { background: #00b894; }
-  .vip-review-marker.selected { background: #6c5ce7; transform: scale(1.2); }
-  
-  .vip-review-tooltip {
-    position: fixed;
-    background: white;
-    border-radius: 12px;
-    padding: 14px;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.25);
-    z-index: 2147483647;
-    max-width: 300px;
-    font-family: 'DM Sans', sans-serif;
-    display: none;
-    pointer-events: none;
-  }
-  .vip-review-tooltip.visible { display: block; }
-  .vip-review-tooltip-author {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 6px;
-    color: #333;
-  }
-  .vip-review-tooltip-text {
-    font-size: 13px;
-    color: #555;
-    line-height: 1.5;
-  }
-  .vip-review-tooltip-time {
-    font-size: 11px;
-    color: #999;
-    margin-top: 8px;
-  }
-  
-  body.vip-pin-mode,
-  body.vip-pin-mode * { 
-    cursor: crosshair !important; 
-  }
-  
-  .vip-pin-indicator {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #6c5ce7;
-    color: white;
-    padding: 14px 28px;
-    border-radius: 30px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    z-index: 2147483647;
-    box-shadow: 0 4px 20px rgba(108,92,231,0.5);
-    display: none;
-    pointer-events: none;
-  }
-  body.vip-pin-mode .vip-pin-indicator { display: block; }
-</style>
-
-<div class="vip-review-tooltip" id="vipTooltip"></div>
-<div class="vip-pin-indicator">👆 Click anywhere to add a comment</div>
-
-<script>
-(function() {
-  var PAGE_URL = ${JSON.stringify(pageUrl)};
-  var API_BASE = '/review';
-  var comments = [];
-  var selectedId = null;
-  var tooltip = document.getElementById('vipTooltip');
-  
-  console.log('[VIP Review] Script loaded for:', PAGE_URL);
-  
-  // Load comments from API
-  function loadComments() {
-    console.log('[VIP Review] Loading comments...');
-    fetch(API_BASE + '/api/comments?url=' + encodeURIComponent(PAGE_URL))
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        console.log('[VIP Review] Loaded', data.length, 'comments');
-        comments = data;
-        renderMarkers();
-      })
-      .catch(function(err) {
-        console.error('[VIP Review] Error loading comments:', err);
-      });
-  }
-  
-  // Render comment markers
-  function renderMarkers() {
-    // Remove old markers
-    var oldMarkers = document.querySelectorAll('.vip-review-marker');
-    for (var i = 0; i < oldMarkers.length; i++) {
-      oldMarkers[i].remove();
     }
-    
-    comments.forEach(function(c, idx) {
-      if (c.x == null || c.y == null) return;
-      
-      var marker = document.createElement('div');
-      marker.className = 'vip-review-marker';
-      if (c.resolved) marker.className += ' resolved';
-      if (c.id === selectedId) marker.className += ' selected';
-      marker.textContent = idx + 1;
-      marker.style.left = c.x + 'px';
-      marker.style.top = c.y + 'px';
-      
-      marker.onclick = function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        showTooltip(c, marker);
-        try {
-          window.parent.postMessage({ type: 'SELECT_COMMENT', id: c.id }, '*');
-        } catch(err) {}
-        return false;
-      };
-      
-      marker.onmouseenter = function() { showTooltip(c, marker); };
-      marker.onmouseleave = function() { hideTooltip(); };
-      
-      document.body.appendChild(marker);
-    });
-  }
-  
-  function showTooltip(comment, marker) {
-    var rect = marker.getBoundingClientRect();
-    tooltip.innerHTML = '<div class="vip-review-tooltip-author">' + escapeHtml(comment.author) + '</div>' +
-      '<div class="vip-review-tooltip-text">' + escapeHtml(comment.comment) + '</div>' +
-      '<div class="vip-review-tooltip-time">' + new Date(comment.timestamp).toLocaleString() + '</div>';
-    
-    var left = rect.right + 15;
-    if (left + 300 > window.innerWidth) {
-      left = rect.left - 315;
-    }
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = rect.top + 'px';
-    tooltip.classList.add('visible');
-  }
-  
-  function hideTooltip() {
-    tooltip.classList.remove('visible');
-  }
-  
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  
-  // Listen for messages from parent
-  window.addEventListener('message', function(e) {
-    console.log('[VIP Review] Message received:', e.data);
-    if (e.data && e.data.type === 'ENTER_PIN_MODE') {
-      document.body.classList.add('vip-pin-mode');
-    } else if (e.data && e.data.type === 'EXIT_PIN_MODE') {
-      document.body.classList.remove('vip-pin-mode');
-    } else if (e.data && e.data.type === 'RELOAD_COMMENTS') {
-      loadComments();
-    } else if (e.data && e.data.type === 'SELECT_COMMENT') {
-      selectedId = e.data.id;
-      renderMarkers();
-      var marker = document.querySelector('.vip-review-marker.selected');
-      if (marker) marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
-  
-  // Handle clicks in pin mode
-  document.addEventListener('click', function(e) {
-    if (!document.body.classList.contains('vip-pin-mode')) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    var x = e.pageX;
-    var y = e.pageY;
-    
-    console.log('[VIP Review] Pin placed at:', x, y);
-    document.body.classList.remove('vip-pin-mode');
-    
-    try {
-      window.parent.postMessage({ type: 'PIN_PLACED', x: x, y: y }, '*');
-    } catch(err) {
-      console.error('[VIP Review] PostMessage error:', err);
-    }
-    
-    return false;
-  }, true);
-  
-  // Initialize when ready
-  function init() {
-    console.log('[VIP Review] Initializing...');
-    loadComments();
-  }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-</script>
-`;
 
-  // Inject before </body> or at end
-  if (modifiedHtml.includes('</body>')) {
-    return modifiedHtml.replace('</body>', commentScript + '</body>');
-  } else {
-    return modifiedHtml + commentScript;
+    res.json({ results });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-}
+});
 
 // Get comments for a page
 app.get('/api/comments', (req, res) => {
@@ -373,6 +235,12 @@ app.delete('/api/comments/:id', (req, res) => {
   data.pages[url] = data.pages[url].filter(c => c.id !== id);
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
   res.json({ success: true });
+});
+
+// Cleanup on exit
+process.on('SIGINT', async () => {
+  if (browser) await browser.close();
+  process.exit();
 });
 
 app.listen(PORT, () => {

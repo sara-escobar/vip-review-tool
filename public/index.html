@@ -9,11 +9,9 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       background: #f0f2f5;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
+      min-height: 100vh;
     }
 
     .header {
@@ -22,7 +20,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .header-left {
@@ -32,12 +32,7 @@
     }
 
     .logo { height: 36px; }
-
-    .header h1 {
-      color: white;
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
+    .header h1 { color: white; font-size: 1.2rem; }
 
     .header-right {
       display: flex;
@@ -53,151 +48,214 @@
       color: white;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
-      width: 180px;
+      width: 160px;
     }
-
     .reviewer-input::placeholder { color: rgba(255,255,255,0.6); }
-    .reviewer-input:focus { outline: none; border-color: #6c5ce7; }
 
-    .page-bar {
+    .toolbar {
       background: white;
-      padding: 14px 24px;
+      padding: 12px 24px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       border-bottom: 1px solid #ddd;
       flex-wrap: wrap;
+      position: sticky;
+      top: 68px;
+      z-index: 99;
     }
 
-    .page-bar label { font-weight: 500; color: #333; }
-
     .page-select {
-      flex: 1;
-      min-width: 300px;
-      max-width: 500px;
       padding: 10px 16px;
       border: 2px solid #e0e0e0;
       border-radius: 25px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 250px;
     }
 
-    .page-select:focus { outline: none; border-color: #6c5ce7; }
-
     .btn {
-      padding: 10px 22px;
+      padding: 10px 20px;
       border: none;
       border-radius: 25px;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
     .btn-primary { background: #6c5ce7; color: white; }
     .btn-primary:hover { background: #5b4bd4; }
+    .btn-secondary { background: #dfe6e9; color: #2d3436; }
+    .btn-secondary:hover { background: #b2bec3; }
+    .btn-success { background: #00b894; color: white; }
+    .btn-success:hover { background: #00a383; }
+    .btn-danger { background: #e74c3c; color: white; }
 
-    .btn-pin { background: #00b894; color: white; }
-    .btn-pin:hover { background: #00a383; }
-    .btn-pin.active { background: #e74c3c; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .main {
-      flex: 1;
+    .main-container {
       display: flex;
-      overflow: hidden;
+      gap: 0;
+      min-height: calc(100vh - 140px);
     }
 
-    .preview-area {
+    .screenshot-area {
       flex: 1;
-      position: relative;
+      padding: 20px;
+      overflow: auto;
       background: #e0e0e0;
     }
 
-    .preview-area iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    .screenshot-wrapper {
+      position: relative;
+      display: inline-block;
       background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .screenshot-wrapper img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .screenshot-wrapper.pin-mode {
+      cursor: crosshair;
+    }
+
+    /* Comment Pin Markers */
+    .pin-marker {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background: #e74c3c;
+      border: 3px solid white;
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background 0.2s;
+      z-index: 50;
+    }
+
+    .pin-marker:hover {
+      transform: translate(-50%, -50%) scale(1.15);
+    }
+
+    .pin-marker.resolved {
+      background: #00b894;
+    }
+
+    .pin-marker.selected {
+      background: #6c5ce7;
+      transform: translate(-50%, -50%) scale(1.2);
+      box-shadow: 0 0 0 4px rgba(108,92,231,0.3);
     }
 
     .placeholder {
-      position: absolute;
-      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 400px;
       color: #666;
-      background: #e0e0e0;
     }
-
     .placeholder-icon { font-size: 4rem; margin-bottom: 16px; }
 
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #6c5ce7;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Comments Panel */
     .comments-panel {
-      width: 380px;
+      width: 360px;
       background: white;
       border-left: 1px solid #ddd;
       display: flex;
       flex-direction: column;
+      max-height: calc(100vh - 140px);
+      position: sticky;
+      top: 140px;
     }
 
     .panel-header {
-      padding: 18px 20px;
+      padding: 16px;
       border-bottom: 1px solid #eee;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .panel-header h2 { font-size: 1.1rem; font-weight: 600; }
+    .panel-header h2 { font-size: 1rem; }
 
-    .comment-count {
+    .badge {
       background: #6c5ce7;
       color: white;
-      padding: 4px 12px;
-      border-radius: 25px;
-      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
     .filters {
-      padding: 12px 20px;
+      padding: 10px 16px;
       display: flex;
       gap: 8px;
       border-bottom: 1px solid #eee;
     }
 
     .filter-btn {
-      padding: 6px 14px;
+      padding: 6px 12px;
       border: none;
       background: #f0f2f5;
-      border-radius: 25px;
+      border-radius: 20px;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.8rem;
       cursor: pointer;
     }
-
     .filter-btn:hover { background: #e0e0e0; }
     .filter-btn.active { background: #6c5ce7; color: white; }
 
     .comments-list {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
     }
 
     .comment-card {
       background: #f8f9fa;
-      border-radius: 12px;
-      padding: 14px;
+      border-radius: 10px;
+      padding: 12px;
       margin-bottom: 10px;
       cursor: pointer;
       border: 2px solid transparent;
       transition: all 0.15s;
     }
-
     .comment-card:hover { background: #f0f2f5; }
     .comment-card.selected { border-color: #6c5ce7; background: #f0ebff; }
     .comment-card.resolved { opacity: 0.6; }
@@ -205,17 +263,11 @@
     .comment-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
-    .comment-author {
-      font-weight: 600;
-      color: #333;
-      font-size: 0.95rem;
-    }
-
-    .pin-badge {
+    .comment-num {
       background: #e74c3c;
       color: white;
       width: 24px;
@@ -227,268 +279,73 @@
       font-size: 0.75rem;
       font-weight: 700;
     }
+    .comment-card.resolved .comment-num { background: #00b894; }
 
-    .comment-card.resolved .pin-badge { background: #00b894; }
-
-    .comment-text {
-      color: #444;
-      line-height: 1.5;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    .comment-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: #888;
-    }
-
-    .comment-actions { display: flex; gap: 10px; }
+    .comment-author { font-weight: 600; font-size: 0.9rem; }
+    .comment-text { font-size: 0.85rem; color: #444; line-height: 1.4; margin-bottom: 8px; }
+    .comment-meta { font-size: 0.75rem; color: #888; display: flex; justify-content: space-between; align-items: center; }
 
     .comment-actions button {
       background: none;
       border: none;
-      cursor: pointer;
       font-size: 0.75rem;
-      font-family: 'DM Sans', sans-serif;
       color: #666;
-      padding: 4px 8px;
-      border-radius: 25px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
     }
-
     .comment-actions button:hover { background: #e0e0e0; }
 
     .empty-state {
       text-align: center;
-      padding: 50px 20px;
+      padding: 40px 20px;
       color: #888;
     }
+    .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
 
-    .empty-state span { font-size: 3rem; display: block; margin-bottom: 12px; }
-
+    /* Add Comment Form */
     .add-form {
-      padding: 16px;
+      padding: 12px;
       background: #f8f9fa;
       border-top: 1px solid #eee;
       display: none;
     }
-
     .add-form.active { display: block; }
-
-    .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .form-header span { font-weight: 600; color: #6c5ce7; }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #888;
-    }
 
     .add-form textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 0.9rem;
+      border-radius: 10px;
       font-family: 'DM Sans', sans-serif;
-      resize: vertical;
-      min-height: 80px;
-      margin-bottom: 12px;
+      font-size: 0.9rem;
+      resize: none;
+      height: 80px;
+      margin-bottom: 10px;
     }
-
     .add-form textarea:focus { outline: none; border-color: #6c5ce7; }
 
-    .form-footer { display: flex; justify-content: flex-end; }
-
-    .status-msg {
-      padding: 8px 14px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: none;
-    }
-    .status-msg.error { display: block; background: #fee; color: #c00; }
-    .status-msg.success { display: block; background: #efe; color: #060; }
-
-    /* Mobile toggle button */
-    .comments-toggle {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #6c5ce7;
-      color: white;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(108,92,231,0.4);
-      z-index: 1000;
-    }
-
-    .comments-toggle .badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #e74c3c;
-      color: white;
-      font-size: 12px;
-      font-weight: 700;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Mobile Responsive */
+    /* Mobile */
     @media (max-width: 768px) {
-      .header {
-        padding: 12px 16px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .header h1 {
-        font-size: 1rem;
-      }
-
-      .logo { height: 28px; }
-
-      .header-left { gap: 10px; }
-
-      .header-right {
-        width: 100%;
-        order: 3;
-      }
-
-      .reviewer-input {
-        width: 100%;
-        padding: 12px 16px;
-      }
-
-      .page-bar {
-        padding: 12px 16px;
-        gap: 10px;
-      }
-
-      .page-bar label { display: none; }
-
-      .page-select {
-        min-width: 100%;
-        max-width: 100%;
-        padding: 12px 16px;
-        font-size: 16px; /* Prevents iOS zoom */
-      }
-
-      .btn {
-        padding: 12px 18px;
-        font-size: 0.85rem;
-      }
-
-      .main {
-        flex-direction: column;
+      .header h1 { font-size: 1rem; }
+      .main-container { flex-direction: column; }
+      .comments-panel { 
+        width: 100%; 
+        max-height: none;
         position: relative;
-      }
-
-      .preview-area {
-        flex: 1;
-        min-height: 50vh;
-      }
-
-      .comments-panel {
-        position: fixed;
         top: 0;
-        right: -100%;
-        width: 100%;
-        height: 100%;
-        z-index: 999;
-        transition: right 0.3s ease;
-        border-left: none;
       }
-
-      .comments-panel.open {
-        right: 0;
-      }
-
-      .comments-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .panel-header {
-        padding: 16px;
-      }
-
-      .panel-header .close-panel {
-        display: block;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #666;
-      }
-
-      .filters {
-        padding: 10px 16px;
-        overflow-x: auto;
-      }
-
-      .filter-btn {
-        white-space: nowrap;
-        padding: 8px 16px;
-      }
-
-      .comments-list {
-        padding: 12px;
-      }
-
-      .comment-card {
-        padding: 12px;
-      }
-
-      .add-form {
-        padding: 12px;
-      }
-
-      .add-form textarea {
-        font-size: 16px; /* Prevents iOS zoom */
-        min-height: 100px;
-      }
-
-      .placeholder-icon { font-size: 3rem; }
-    }
-
-    @media (max-width: 480px) {
-      .header h1 { font-size: 0.9rem; }
-
-      .btn {
-        padding: 10px 14px;
-        font-size: 0.8rem;
-      }
-
-      #pinBtn span { display: none; }
+      .screenshot-area { padding: 10px; }
+      .toolbar { gap: 8px; }
+      .page-select { min-width: 100%; }
     }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="header-left">
-      <img src="logo.png" alt="VIP Medical Group" class="logo">
+      <img src="logo.png" alt="VIP" class="logo">
       <h1>Redesign Review Tool</h1>
     </div>
     <div class="header-right">
@@ -496,94 +353,61 @@
     </div>
   </header>
 
-  <div class="page-bar">
-    <label>Page:</label>
+  <div class="toolbar">
     <select id="pageSelect" class="page-select">
       <option value="">-- Select a page --</option>
-      <optgroup label="Main Pages">
-        <option value="https://www.vipmedicalgroup.com/">Home</option>
-        <option value="https://www.vipmedicalgroup.com/about-us/">About Us</option>
-        <option value="https://www.vipmedicalgroup.com/meet-our-doctors/">Meet Our Doctors</option>
-        <option value="https://www.vipmedicalgroup.com/meet-our-team/">Meet Our Team</option>
-        <option value="https://www.vipmedicalgroup.com/what-to-expect/">What to Expect</option>
-        <option value="https://www.vipmedicalgroup.com/your-visit/">Your Visit</option>
-        <option value="https://www.vipmedicalgroup.com/locations/">Locations</option>
-        <option value="https://www.vipmedicalgroup.com/book-appointment/">Book Appointment</option>
-        <option value="https://www.vipmedicalgroup.com/careers/">Careers</option>
-      </optgroup>
-      <optgroup label="Vein Treatments">
-        <option value="https://www.vipmedicalgroup.com/vein-treatments/">Vein Treatments</option>
-        <option value="https://www.vipmedicalgroup.com/vein-treatment/spider-veins/">Spider Veins</option>
-        <option value="https://www.vipmedicalgroup.com/vein-treatment/varicose-veins/">Varicose Veins</option>
-        <option value="https://www.vipmedicalgroup.com/vein-treatment/chronic-venous-insufficiency/">Chronic Venous Insufficiency</option>
-        <option value="https://www.vipmedicalgroup.com/vein-treatment-results/">Vein Treatment Results</option>
-      </optgroup>
-      <optgroup label="Pain Treatments">
-        <option value="https://www.vipmedicalgroup.com/pain-treatments/">Pain Treatments</option>
-        <option value="https://www.vipmedicalgroup.com/pain-treatment-results/">Pain Treatment Results</option>
-      </optgroup>
-      <optgroup label="Referrals">
-        <option value="https://www.vipmedicalgroup.com/referrals/">Referrals</option>
-        <option value="https://www.vipmedicalgroup.com/how-referral-process-works/">How Referral Process Works</option>
-      </optgroup>
     </select>
-    <button id="loadBtn" class="btn btn-primary">Load</button>
-    <button id="pinBtn" class="btn btn-pin">📍 Add Comment</button>
+    <button id="loadBtn" class="btn btn-primary">Load Screenshot</button>
+    <button id="pinBtn" class="btn btn-success" disabled>📍 Add Comment</button>
+    <button id="captureAllBtn" class="btn btn-secondary">📸 Capture All Pages</button>
   </div>
 
-  <main class="main">
-    <div class="preview-area">
-      <iframe id="previewFrame" style="display:none;"></iframe>
+  <div class="main-container">
+    <div class="screenshot-area" id="screenshotArea">
       <div class="placeholder" id="placeholder">
-        <span class="placeholder-icon">🔍</span>
-        <p>Select a page to start reviewing</p>
+        <span class="placeholder-icon">🖼️</span>
+        <p>Select a page and click "Load Screenshot"</p>
+      </div>
+      <div class="screenshot-wrapper" id="screenshotWrapper" style="display:none;">
+        <img id="screenshotImg" src="" alt="Page screenshot">
       </div>
     </div>
 
     <aside class="comments-panel">
       <div class="panel-header">
         <h2>Comments</h2>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="comment-count" id="commentCount">0</span>
-          <button class="close-panel" id="closePanel" style="display:none;">×</button>
-        </div>
+        <span class="badge" id="commentCount">0</span>
       </div>
-      
       <div class="filters">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="open">Open</button>
         <button class="filter-btn" data-filter="resolved">Resolved</button>
       </div>
-
       <div class="comments-list" id="commentsList">
         <div class="empty-state">
           <span>💬</span>
           <p>No comments yet</p>
         </div>
       </div>
-
       <div class="add-form" id="addForm">
-        <div class="form-header">
-          <span>📍 New Comment</span>
-          <button class="close-btn" id="closeForm">×</button>
-        </div>
-        <div class="status-msg" id="statusMsg"></div>
-        <textarea id="commentInput" placeholder="What's your feedback?"></textarea>
-        <div class="form-footer">
+        <textarea id="commentInput" placeholder="Write your feedback..."></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
           <button class="btn btn-primary" id="submitBtn">Submit</button>
         </div>
       </div>
     </aside>
-  </main>
+  </div>
 
-  <button class="comments-toggle" id="commentsToggle">
-    💬
-    <span class="badge" id="mobileBadge" style="display:none;">0</span>
-  </button>
+  <div class="loading-overlay" id="loading" style="display:none;">
+    <div class="spinner"></div>
+    <p style="margin-top:16px;" id="loadingText">Loading...</p>
+  </div>
 
   <script>
     const API = window.location.pathname.replace(/\/$/, '') || '';
     
+    let pages = [];
     let currentUrl = '';
     let comments = [];
     let pinMode = false;
@@ -594,157 +418,197 @@
     const pageSelect = document.getElementById('pageSelect');
     const loadBtn = document.getElementById('loadBtn');
     const pinBtn = document.getElementById('pinBtn');
-    const previewFrame = document.getElementById('previewFrame');
+    const captureAllBtn = document.getElementById('captureAllBtn');
+    const screenshotWrapper = document.getElementById('screenshotWrapper');
+    const screenshotImg = document.getElementById('screenshotImg');
     const placeholder = document.getElementById('placeholder');
+    const loading = document.getElementById('loading');
+    const loadingText = document.getElementById('loadingText');
     const commentsList = document.getElementById('commentsList');
     const commentCount = document.getElementById('commentCount');
     const addForm = document.getElementById('addForm');
     const commentInput = document.getElementById('commentInput');
     const submitBtn = document.getElementById('submitBtn');
-    const closeForm = document.getElementById('closeForm');
+    const cancelBtn = document.getElementById('cancelBtn');
     const reviewerName = document.getElementById('reviewerName');
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const statusMsg = document.getElementById('statusMsg');
-    const commentsPanel = document.querySelector('.comments-panel');
-    const commentsToggle = document.getElementById('commentsToggle');
-    const closePanel = document.getElementById('closePanel');
-    const mobileBadge = document.getElementById('mobileBadge');
-
-    // Mobile panel toggle
-    function setupMobile() {
-      const isMobile = window.innerWidth <= 768;
-      closePanel.style.display = isMobile ? 'block' : 'none';
-    }
-    
-    setupMobile();
-    window.addEventListener('resize', setupMobile);
-
-    commentsToggle.addEventListener('click', () => {
-      commentsPanel.classList.add('open');
-    });
-
-    closePanel.addEventListener('click', () => {
-      commentsPanel.classList.remove('open');
-    });
 
     // Load saved name
     reviewerName.value = localStorage.getItem('reviewerName') || '';
     reviewerName.addEventListener('change', () => localStorage.setItem('reviewerName', reviewerName.value));
 
-    // Load page
-    loadBtn.addEventListener('click', loadPage);
-    pageSelect.addEventListener('change', () => { if (pageSelect.value) loadPage(); });
-
-    function loadPage() {
-      const url = pageSelect.value;
-      if (!url) return;
+    // Load pages list
+    async function loadPages() {
+      const res = await fetch(`${API}/api/pages`);
+      pages = await res.json();
       
-      currentUrl = url;
-      previewFrame.src = `${API}/api/proxy?url=${encodeURIComponent(url)}`;
-      previewFrame.style.display = 'block';
-      placeholder.style.display = 'none';
-      loadComments();
+      pageSelect.innerHTML = '<option value="">-- Select a page --</option>';
+      pages.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.url;
+        opt.textContent = p.name + (p.hasScreenshot ? '' : ' (no screenshot)');
+        if (p.commentCount > 0) opt.textContent += ` [${p.commentCount}]`;
+        pageSelect.appendChild(opt);
+      });
     }
 
-    // Pin mode
-    pinBtn.addEventListener('click', () => {
-      if (!currentUrl) return alert('Load a page first');
-      pinMode = !pinMode;
-      pinBtn.classList.toggle('active', pinMode);
-      pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
-      
-      // Tell iframe to enter/exit pin mode
-      previewFrame.contentWindow.postMessage({ 
-        type: pinMode ? 'ENTER_PIN_MODE' : 'EXIT_PIN_MODE' 
-      }, '*');
-    });
+    // Load screenshot
+    loadBtn.addEventListener('click', loadScreenshot);
+    pageSelect.addEventListener('change', () => { if (pageSelect.value) loadScreenshot(); });
 
-    // Listen for messages from iframe
-    window.addEventListener('message', (e) => {
-      if (e.data.type === 'PIN_PLACED') {
-        pendingPin = { x: e.data.x, y: e.data.y };
-        pinMode = false;
-        pinBtn.classList.remove('active');
-        pinBtn.textContent = '📍 Add Comment';
-        addForm.classList.add('active');
-        // Open panel on mobile
-        if (window.innerWidth <= 768) {
-          commentsPanel.classList.add('open');
-        }
-        commentInput.focus();
-      } else if (e.data.type === 'SELECT_COMMENT') {
-        selectedId = e.data.id;
-        renderComments();
+    async function loadScreenshot() {
+      const url = pageSelect.value;
+      if (!url) return;
+
+      currentUrl = url;
+      loading.style.display = 'flex';
+      loadingText.textContent = 'Loading screenshot...';
+
+      try {
+        const res = await fetch(`${API}/api/screenshot`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        screenshotImg.src = data.screenshot + '?t=' + Date.now();
+        screenshotImg.onload = () => {
+          placeholder.style.display = 'none';
+          screenshotWrapper.style.display = 'inline-block';
+          pinBtn.disabled = false;
+          loading.style.display = 'none';
+          loadComments();
+        };
+      } catch (err) {
+        alert('Error: ' + err.message);
+        loading.style.display = 'none';
+      }
+    }
+
+    // Capture all pages
+    captureAllBtn.addEventListener('click', async () => {
+      if (!confirm('Capture screenshots of all pages? This may take a few minutes.')) return;
+      
+      loading.style.display = 'flex';
+      loadingText.textContent = 'Capturing all pages...';
+
+      try {
+        const res = await fetch(`${API}/api/screenshot/all`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: false })
+        });
+        const data = await res.json();
+        alert('Done! Captured ' + data.results.filter(r => r.status === 'captured').length + ' new screenshots.');
+        loadPages();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
       }
     });
 
-    // Close form
-    closeForm.addEventListener('click', () => {
+    // Pin mode
+    pinBtn.addEventListener('click', () => {
+      pinMode = !pinMode;
+      pinBtn.classList.toggle('btn-danger', pinMode);
+      pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
+      screenshotWrapper.classList.toggle('pin-mode', pinMode);
+    });
+
+    // Click on screenshot to place pin
+    screenshotWrapper.addEventListener('click', (e) => {
+      if (!pinMode) return;
+      if (e.target.classList.contains('pin-marker')) return;
+
+      const rect = screenshotImg.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      pendingPin = { x, y };
+      pinMode = false;
+      pinBtn.classList.remove('btn-danger');
+      pinBtn.textContent = '📍 Add Comment';
+      screenshotWrapper.classList.remove('pin-mode');
+
+      addForm.classList.add('active');
+      commentInput.focus();
+    });
+
+    // Cancel comment
+    cancelBtn.addEventListener('click', () => {
       addForm.classList.remove('active');
       commentInput.value = '';
       pendingPin = null;
-      statusMsg.className = 'status-msg';
     });
 
     // Submit comment
     submitBtn.addEventListener('click', submitComment);
-    commentInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.ctrlKey) submitComment();
-    });
 
     async function submitComment() {
       const text = commentInput.value.trim();
+      if (!text) return alert('Please enter a comment');
+      if (!pendingPin) return alert('Please click on the screenshot first');
+
       const author = reviewerName.value.trim() || 'Anonymous';
 
-      if (!text) {
-        statusMsg.textContent = 'Please enter a comment';
-        statusMsg.className = 'status-msg error';
-        return;
-      }
-
-      submitBtn.disabled = true;
-
       try {
-        const res = await fetch(`${API}/api/comments`, {
+        await fetch(`${API}/api/comments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             url: currentUrl,
             comment: text,
             author,
-            x: pendingPin?.x,
-            y: pendingPin?.y
+            x: pendingPin.x,
+            y: pendingPin.y
           })
         });
 
-        if (res.ok) {
-          addForm.classList.remove('active');
-          commentInput.value = '';
-          pendingPin = null;
-          loadComments();
-          // Tell iframe to reload markers
-          previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
-        }
+        addForm.classList.remove('active');
+        commentInput.value = '';
+        pendingPin = null;
+        loadComments();
+        loadPages(); // Refresh counts
       } catch (err) {
-        statusMsg.textContent = 'Error: ' + err.message;
-        statusMsg.className = 'status-msg error';
-      } finally {
-        submitBtn.disabled = false;
+        alert('Error: ' + err.message);
       }
     }
 
     // Load comments
     async function loadComments() {
       if (!currentUrl) return;
-      try {
-        const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
-        comments = await res.json();
-        renderComments();
-      } catch (err) {
-        console.error(err);
-      }
+
+      const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
+      comments = await res.json();
+      renderPins();
+      renderComments();
     }
 
+    // Render pins on screenshot
+    function renderPins() {
+      screenshotWrapper.querySelectorAll('.pin-marker').forEach(p => p.remove());
+
+      comments.forEach((c, i) => {
+        if (c.x == null) return;
+
+        const pin = document.createElement('div');
+        pin.className = 'pin-marker' + (c.resolved ? ' resolved' : '') + (c.id === selectedId ? ' selected' : '');
+        pin.style.left = c.x + '%';
+        pin.style.top = c.y + '%';
+        pin.textContent = i + 1;
+        pin.onclick = (e) => {
+          e.stopPropagation();
+          selectComment(c.id);
+        };
+        screenshotWrapper.appendChild(pin);
+      });
+    }
+
+    // Render comments list
     function renderComments() {
       const filtered = comments.filter(c => {
         if (filter === 'open') return !c.resolved;
@@ -753,17 +617,9 @@
       });
 
       commentCount.textContent = comments.length;
-      
-      // Update mobile badge
-      if (comments.length > 0) {
-        mobileBadge.textContent = comments.length;
-        mobileBadge.style.display = 'flex';
-      } else {
-        mobileBadge.style.display = 'none';
-      }
 
       if (filtered.length === 0) {
-        commentsList.innerHTML = `<div class="empty-state"><span>💬</span><p>No comments yet</p></div>`;
+        commentsList.innerHTML = '<div class="empty-state"><span>💬</span><p>No comments yet</p></div>';
         return;
       }
 
@@ -774,17 +630,15 @@
           <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}"
                onclick="selectComment('${c.id}')">
             <div class="comment-header">
-              <span class="pin-badge">${num}</span>
+              <span class="comment-num">${num}</span>
               <span class="comment-author">${escapeHtml(c.author)}</span>
             </div>
             <p class="comment-text">${escapeHtml(c.comment)}</p>
             <div class="comment-meta">
               <span>${date}</span>
               <div class="comment-actions">
-                <button onclick="event.stopPropagation(); toggleResolve('${c.id}', ${!c.resolved})">
-                  ${c.resolved ? '↩ Reopen' : '✓ Resolve'}
-                </button>
-                <button onclick="event.stopPropagation(); deleteComment('${c.id}')">🗑</button>
+                <button onclick="event.stopPropagation();toggleResolve('${c.id}',${!c.resolved})">${c.resolved ? '↩ Reopen' : '✓ Resolve'}</button>
+                <button onclick="event.stopPropagation();deleteComment('${c.id}')">🗑</button>
               </div>
             </div>
           </div>
@@ -794,8 +648,13 @@
 
     window.selectComment = function(id) {
       selectedId = selectedId === id ? null : id;
+      renderPins();
       renderComments();
-      previewFrame.contentWindow.postMessage({ type: 'SELECT_COMMENT', id: selectedId }, '*');
+      
+      if (selectedId) {
+        const pin = screenshotWrapper.querySelector('.pin-marker.selected');
+        if (pin) pin.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     };
 
     window.toggleResolve = async function(id, resolved) {
@@ -805,16 +664,16 @@
         body: JSON.stringify({ url: currentUrl, resolved })
       });
       loadComments();
-      previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
     };
 
     window.deleteComment = async function(id) {
-      if (!confirm('Delete?')) return;
+      if (!confirm('Delete this comment?')) return;
       await fetch(`${API}/api/comments/${id}?url=${encodeURIComponent(currentUrl)}`, { method: 'DELETE' });
       loadComments();
-      previewFrame.contentWindow.postMessage({ type: 'RELOAD_COMMENTS' }, '*');
+      loadPages();
     };
 
+    // Filters
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
@@ -829,6 +688,9 @@
       div.textContent = text;
       return div.innerHTML;
     }
+
+    // Initialize
+    loadPages();
   </script>
 </body>
 </html>
