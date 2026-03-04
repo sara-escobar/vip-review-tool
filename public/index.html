@@ -16,7 +16,7 @@
 
     .header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -25,43 +25,33 @@
       z-index: 100;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo { height: 32px; }
+    .header h1 { color: white; font-size: 1.1rem; }
 
-    .logo { height: 36px; }
-    .header h1 { color: white; font-size: 1.2rem; }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .header-right { display: flex; align-items: center; gap: 12px; }
 
     .reviewer-input {
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.3);
       border-radius: 25px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       color: white;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
-      width: 160px;
+      font-size: 0.85rem;
+      width: 150px;
     }
     .reviewer-input::placeholder { color: rgba(255,255,255,0.6); }
 
     .toolbar {
       background: white;
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       gap: 12px;
       border-bottom: 1px solid #ddd;
-      flex-wrap: wrap;
       position: sticky;
-      top: 68px;
+      top: 60px;
       z-index: 99;
     }
 
@@ -71,40 +61,42 @@
       border-radius: 25px;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
-      min-width: 250px;
+      min-width: 280px;
+      cursor: pointer;
     }
+    .page-select:focus { outline: none; border-color: #6c5ce7; }
 
     .btn {
       padding: 10px 20px;
       border: none;
       border-radius: 25px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.15s;
     }
-
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background: #6c5ce7; color: white; }
-    .btn-primary:hover { background: #5b4bd4; }
-    .btn-secondary { background: #dfe6e9; color: #2d3436; }
-    .btn-secondary:hover { background: #b2bec3; }
+    .btn-primary:hover:not(:disabled) { background: #5b4bd4; }
     .btn-success { background: #00b894; color: white; }
-    .btn-success:hover { background: #00a383; }
+    .btn-success:hover:not(:disabled) { background: #00a383; }
     .btn-danger { background: #e74c3c; color: white; }
-
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: #666; }
+    .btn-ghost:hover { background: #f0f0f0; }
 
     .main-container {
       display: flex;
-      gap: 0;
-      min-height: calc(100vh - 140px);
+      min-height: calc(100vh - 110px);
     }
 
+    /* Screenshot Area */
     .screenshot-area {
       flex: 1;
-      padding: 20px;
+      padding: 16px;
       overflow: auto;
-      background: #e0e0e0;
+      background: #ddd;
+      position: relative;
     }
 
     .screenshot-wrapper {
@@ -113,6 +105,7 @@
       background: white;
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      min-height: 300px;
     }
 
     .screenshot-wrapper img {
@@ -120,44 +113,18 @@
       max-width: 100%;
     }
 
-    .screenshot-wrapper.pin-mode {
-      cursor: crosshair;
-    }
+    .screenshot-wrapper.pin-mode { cursor: crosshair; }
 
-    /* Comment Pin Markers */
-    .pin-marker {
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      background: #e74c3c;
-      border: 3px solid white;
-      border-radius: 50%;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-      transition: transform 0.2s, background 0.2s;
-      z-index: 50;
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+      width: 100%;
+      height: 600px;
     }
-
-    .pin-marker:hover {
-      transform: translate(-50%, -50%) scale(1.15);
-    }
-
-    .pin-marker.resolved {
-      background: #00b894;
-    }
-
-    .pin-marker.selected {
-      background: #6c5ce7;
-      transform: translate(-50%, -50%) scale(1.2);
-      box-shadow: 0 0 0 4px rgba(108,92,231,0.3);
-    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
     .placeholder {
       display: flex;
@@ -165,77 +132,104 @@
       align-items: center;
       justify-content: center;
       height: 400px;
-      color: #666;
+      color: #888;
+      text-align: center;
     }
-    .placeholder-icon { font-size: 4rem; margin-bottom: 16px; }
+    .placeholder-icon { font-size: 3rem; margin-bottom: 12px; }
 
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.9);
+    .error-msg {
+      background: #fee;
+      color: #c00;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    /* Pin markers - LARGER for mobile */
+    .pin-marker {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      background: #e74c3c;
+      border: 3px solid white;
+      border-radius: 50%;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+      transition: transform 0.15s;
+      z-index: 50;
     }
+    .pin-marker:hover { transform: translate(-50%, -50%) scale(1.15); }
+    .pin-marker.resolved { background: #00b894; }
+    .pin-marker.selected { background: #6c5ce7; transform: translate(-50%, -50%) scale(1.2); }
+    
+    /* Urgency colors */
+    .pin-marker.urgency-low { background: #74b9ff; }
+    .pin-marker.urgency-medium { background: #fdcb6e; }
+    .pin-marker.urgency-high { background: #e17055; }
+    .pin-marker.urgency-critical { background: #d63031; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(214,48,49,0.5); } 50% { box-shadow: 0 0 0 8px rgba(214,48,49,0); } }
 
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e0e0e0;
-      border-top-color: #6c5ce7;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    /* Tooltip on hover */
+    .pin-tooltip {
+      position: absolute;
+      background: white;
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 100;
+      max-width: 250px;
+      font-size: 0.85rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
     }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .pin-tooltip.visible { opacity: 1; }
+    .pin-tooltip-author { font-weight: 600; margin-bottom: 4px; }
+    .pin-tooltip-text { color: #555; line-height: 1.4; }
 
     /* Comments Panel */
     .comments-panel {
-      width: 360px;
+      width: 380px;
       background: white;
       border-left: 1px solid #ddd;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 140px);
+      max-height: calc(100vh - 110px);
       position: sticky;
-      top: 140px;
+      top: 110px;
     }
 
     .panel-header {
-      padding: 16px;
+      padding: 14px 16px;
       border-bottom: 1px solid #eee;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .panel-header h2 { font-size: 1rem; }
-
-    .badge {
-      background: #6c5ce7;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
+    .badge { background: #6c5ce7; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
 
     .filters {
       padding: 10px 16px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       border-bottom: 1px solid #eee;
+      flex-wrap: wrap;
     }
-
     .filter-btn {
-      padding: 6px 12px;
+      padding: 5px 12px;
       border: none;
       background: #f0f2f5;
       border-radius: 20px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
     }
     .filter-btn:hover { background: #e0e0e0; }
@@ -253,24 +247,24 @@
       padding: 12px;
       margin-bottom: 10px;
       cursor: pointer;
-      border: 2px solid transparent;
+      border-left: 4px solid #ccc;
       transition: all 0.15s;
     }
     .comment-card:hover { background: #f0f2f5; }
-    .comment-card.selected { border-color: #6c5ce7; background: #f0ebff; }
-    .comment-card.resolved { opacity: 0.6; }
+    .comment-card.selected { border-left-color: #6c5ce7; background: #f0ebff; }
+    .comment-card.resolved { opacity: 0.5; }
+    
+    /* Urgency border colors */
+    .comment-card.urgency-low { border-left-color: #74b9ff; }
+    .comment-card.urgency-medium { border-left-color: #fdcb6e; }
+    .comment-card.urgency-high { border-left-color: #e17055; }
+    .comment-card.urgency-critical { border-left-color: #d63031; }
 
-    .comment-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
+    .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
     .comment-num {
       background: #e74c3c;
       color: white;
-      width: 24px;
+      min-width: 24px;
       height: 24px;
       border-radius: 50%;
       display: flex;
@@ -280,15 +274,25 @@
       font-weight: 700;
     }
     .comment-card.resolved .comment-num { background: #00b894; }
-
     .comment-author { font-weight: 600; font-size: 0.9rem; }
-    .comment-text { font-size: 0.85rem; color: #444; line-height: 1.4; margin-bottom: 8px; }
-    .comment-meta { font-size: 0.75rem; color: #888; display: flex; justify-content: space-between; align-items: center; }
+    .urgency-tag {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .urgency-tag.low { background: #dfe6e9; color: #636e72; }
+    .urgency-tag.medium { background: #ffeaa7; color: #d68910; }
+    .urgency-tag.high { background: #fab1a0; color: #c0392b; }
+    .urgency-tag.critical { background: #ff7675; color: white; }
 
+    .comment-text { font-size: 0.85rem; color: #444; line-height: 1.4; margin-bottom: 8px; }
+    .comment-meta { font-size: 0.7rem; color: #888; display: flex; justify-content: space-between; align-items: center; }
     .comment-actions button {
       background: none;
       border: none;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #666;
       cursor: pointer;
       padding: 2px 6px;
@@ -297,11 +301,14 @@
     }
     .comment-actions button:hover { background: #e0e0e0; }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #888;
-    }
+    /* Replies */
+    .replies { margin-top: 10px; padding-left: 16px; border-left: 2px solid #e0e0e0; }
+    .reply-card { background: #fff; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 0.8rem; }
+    .reply-author { font-weight: 600; font-size: 0.75rem; }
+    .reply-text { color: #555; margin-top: 4px; }
+    .reply-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; margin-top: 8px; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: #888; }
     .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
 
     /* Add Comment Form */
@@ -312,7 +319,6 @@
       display: none;
     }
     .add-form.active { display: block; }
-
     .add-form textarea {
       width: 100%;
       padding: 10px;
@@ -321,24 +327,28 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
       resize: none;
-      height: 80px;
-      margin-bottom: 10px;
+      height: 70px;
+      margin-bottom: 8px;
     }
     .add-form textarea:focus { outline: none; border-color: #6c5ce7; }
+    .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .form-row label { font-size: 0.8rem; color: #666; }
+    .urgency-select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+    }
 
     /* Mobile */
     @media (max-width: 768px) {
-      .header h1 { font-size: 1rem; }
       .main-container { flex-direction: column; }
-      .comments-panel { 
-        width: 100%; 
-        max-height: none;
-        position: relative;
-        top: 0;
-      }
+      .comments-panel { width: 100%; max-height: none; position: relative; top: 0; }
       .screenshot-area { padding: 10px; }
-      .toolbar { gap: 8px; }
+      .toolbar { flex-wrap: wrap; gap: 8px; }
       .page-select { min-width: 100%; }
+      .pin-marker { width: 50px; height: 50px; font-size: 18px; }
     }
   </style>
 </head>
@@ -355,22 +365,23 @@
 
   <div class="toolbar">
     <select id="pageSelect" class="page-select">
-      <option value="">-- Select a page --</option>
+      <option value="">Select a page to review...</option>
     </select>
-    <button id="loadBtn" class="btn btn-primary">Load Screenshot</button>
     <button id="pinBtn" class="btn btn-success" disabled>📍 Add Comment</button>
-    <button id="captureAllBtn" class="btn btn-secondary">📸 Capture All Pages</button>
+    <button id="refreshBtn" class="btn btn-ghost" style="display:none;">🔄 Refresh</button>
   </div>
 
   <div class="main-container">
     <div class="screenshot-area" id="screenshotArea">
       <div class="placeholder" id="placeholder">
-        <span class="placeholder-icon">🖼️</span>
-        <p>Select a page and click "Load Screenshot"</p>
+        <span class="placeholder-icon">👆</span>
+        <p>Select a page from the dropdown above</p>
       </div>
       <div class="screenshot-wrapper" id="screenshotWrapper" style="display:none;">
         <img id="screenshotImg" src="" alt="Page screenshot">
       </div>
+      <div class="skeleton" id="skeleton" style="display:none;"></div>
+      <div class="error-msg" id="errorMsg" style="display:none;"></div>
     </div>
 
     <aside class="comments-panel">
@@ -382,26 +393,34 @@
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="open">Open</button>
         <button class="filter-btn" data-filter="resolved">Resolved</button>
+        <button class="filter-btn" data-filter="critical">🔴 Critical</button>
       </div>
       <div class="comments-list" id="commentsList">
-        <div class="empty-state">
-          <span>💬</span>
-          <p>No comments yet</p>
-        </div>
+        <div class="empty-state"><span>💬</span><p>No comments yet</p></div>
       </div>
       <div class="add-form" id="addForm">
-        <textarea id="commentInput" placeholder="Write your feedback..."></textarea>
+        <textarea id="commentInput" placeholder="Describe what needs to be fixed..."></textarea>
+        <div class="form-row">
+          <label>Urgency:</label>
+          <select id="urgencySelect" class="urgency-select">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
         <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+          <button class="btn btn-ghost" id="cancelBtn">Cancel</button>
           <button class="btn btn-primary" id="submitBtn">Submit</button>
         </div>
       </div>
     </aside>
   </div>
 
-  <div class="loading-overlay" id="loading" style="display:none;">
-    <div class="spinner"></div>
-    <p style="margin-top:16px;" id="loadingText">Loading...</p>
+  <!-- Tooltip -->
+  <div class="pin-tooltip" id="pinTooltip">
+    <div class="pin-tooltip-author"></div>
+    <div class="pin-tooltip-text"></div>
   </div>
 
   <script>
@@ -415,54 +434,58 @@
     let selectedId = null;
     let filter = 'all';
 
-    const pageSelect = document.getElementById('pageSelect');
-    const loadBtn = document.getElementById('loadBtn');
-    const pinBtn = document.getElementById('pinBtn');
-    const captureAllBtn = document.getElementById('captureAllBtn');
-    const screenshotWrapper = document.getElementById('screenshotWrapper');
-    const screenshotImg = document.getElementById('screenshotImg');
-    const placeholder = document.getElementById('placeholder');
-    const loading = document.getElementById('loading');
-    const loadingText = document.getElementById('loadingText');
-    const commentsList = document.getElementById('commentsList');
-    const commentCount = document.getElementById('commentCount');
-    const addForm = document.getElementById('addForm');
-    const commentInput = document.getElementById('commentInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const reviewerName = document.getElementById('reviewerName');
-    const filterBtns = document.querySelectorAll('.filter-btn');
+    const els = {
+      pageSelect: document.getElementById('pageSelect'),
+      pinBtn: document.getElementById('pinBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      wrapper: document.getElementById('screenshotWrapper'),
+      img: document.getElementById('screenshotImg'),
+      placeholder: document.getElementById('placeholder'),
+      skeleton: document.getElementById('skeleton'),
+      errorMsg: document.getElementById('errorMsg'),
+      commentsList: document.getElementById('commentsList'),
+      commentCount: document.getElementById('commentCount'),
+      addForm: document.getElementById('addForm'),
+      commentInput: document.getElementById('commentInput'),
+      urgencySelect: document.getElementById('urgencySelect'),
+      submitBtn: document.getElementById('submitBtn'),
+      cancelBtn: document.getElementById('cancelBtn'),
+      reviewerName: document.getElementById('reviewerName'),
+      tooltip: document.getElementById('pinTooltip')
+    };
 
     // Load saved name
-    reviewerName.value = localStorage.getItem('reviewerName') || '';
-    reviewerName.addEventListener('change', () => localStorage.setItem('reviewerName', reviewerName.value));
+    els.reviewerName.value = localStorage.getItem('reviewerName') || '';
+    els.reviewerName.addEventListener('change', () => localStorage.setItem('reviewerName', els.reviewerName.value));
 
-    // Load pages list
+    // Load pages
     async function loadPages() {
-      const res = await fetch(`${API}/api/pages`);
-      pages = await res.json();
-      
-      pageSelect.innerHTML = '<option value="">-- Select a page --</option>';
-      pages.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.url;
-        opt.textContent = p.name + (p.hasScreenshot ? '' : ' (no screenshot)');
-        if (p.commentCount > 0) opt.textContent += ` [${p.commentCount}]`;
-        pageSelect.appendChild(opt);
-      });
+      try {
+        const res = await fetch(`${API}/api/pages`);
+        pages = await res.json();
+        els.pageSelect.innerHTML = '<option value="">Select a page to review...</option>';
+        pages.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.url;
+          opt.textContent = p.name + (p.openComments > 0 ? ` (${p.openComments} open)` : '');
+          els.pageSelect.appendChild(opt);
+        });
+      } catch (err) {
+        showError('Failed to load pages');
+      }
     }
 
-    // Load screenshot
-    loadBtn.addEventListener('click', loadScreenshot);
-    pageSelect.addEventListener('change', () => { if (pageSelect.value) loadScreenshot(); });
+    // Auto-load screenshot on page select
+    els.pageSelect.addEventListener('change', () => {
+      if (els.pageSelect.value) loadScreenshot();
+    });
 
     async function loadScreenshot() {
-      const url = pageSelect.value;
+      const url = els.pageSelect.value;
       if (!url) return;
 
       currentUrl = url;
-      loading.style.display = 'flex';
-      loadingText.textContent = 'Loading screenshot...';
+      showLoading();
 
       try {
         const res = await fetch(`${API}/api/screenshot`, {
@@ -474,86 +497,104 @@
 
         if (data.error) throw new Error(data.error);
 
-        screenshotImg.src = API + data.screenshot + '?t=' + Date.now();
-        screenshotImg.onload = () => {
-          placeholder.style.display = 'none';
-          screenshotWrapper.style.display = 'inline-block';
-          pinBtn.disabled = false;
-          loading.style.display = 'none';
+        els.img.src = API + data.screenshot + '?t=' + Date.now();
+        els.img.onload = () => {
+          hideLoading();
+          els.wrapper.style.display = 'inline-block';
+          els.pinBtn.disabled = false;
+          els.refreshBtn.style.display = 'inline-block';
           loadComments();
         };
+        els.img.onerror = () => {
+          showError('Failed to load screenshot image');
+        };
       } catch (err) {
-        alert('Error: ' + err.message);
-        loading.style.display = 'none';
+        showError(err.message);
       }
     }
 
-    // Capture all pages
-    captureAllBtn.addEventListener('click', async () => {
-      if (!confirm('Capture screenshots of all pages? This may take a few minutes.')) return;
-      
-      loading.style.display = 'flex';
-      loadingText.textContent = 'Capturing all pages...';
-
+    // Refresh screenshot
+    els.refreshBtn.addEventListener('click', async () => {
+      els.refreshBtn.disabled = true;
+      els.refreshBtn.textContent = '⏳ Capturing...';
       try {
-        const res = await fetch(`${API}/api/screenshot/all`, {
+        await fetch(`${API}/api/screenshot`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh: false })
+          body: JSON.stringify({ url: currentUrl, refresh: true })
         });
-        const data = await res.json();
-        alert('Done! Captured ' + data.results.filter(r => r.status === 'captured').length + ' new screenshots.');
-        loadPages();
-      } catch (err) {
-        alert('Error: ' + err.message);
+        loadScreenshot();
       } finally {
-        loading.style.display = 'none';
+        els.refreshBtn.disabled = false;
+        els.refreshBtn.textContent = '🔄 Refresh';
       }
     });
 
+    function showLoading() {
+      els.placeholder.style.display = 'none';
+      els.wrapper.style.display = 'none';
+      els.errorMsg.style.display = 'none';
+      els.skeleton.style.display = 'block';
+    }
+
+    function hideLoading() {
+      els.skeleton.style.display = 'none';
+    }
+
+    function showError(msg) {
+      els.skeleton.style.display = 'none';
+      els.placeholder.style.display = 'none';
+      els.wrapper.style.display = 'none';
+      els.errorMsg.style.display = 'block';
+      els.errorMsg.textContent = '❌ ' + msg;
+    }
+
     // Pin mode
-    pinBtn.addEventListener('click', () => {
+    els.pinBtn.addEventListener('click', () => {
       pinMode = !pinMode;
-      pinBtn.classList.toggle('btn-danger', pinMode);
-      pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
-      screenshotWrapper.classList.toggle('pin-mode', pinMode);
+      els.pinBtn.classList.toggle('btn-danger', pinMode);
+      els.pinBtn.textContent = pinMode ? '❌ Cancel' : '📍 Add Comment';
+      els.wrapper.classList.toggle('pin-mode', pinMode);
     });
 
-    // Click on screenshot to place pin
-    screenshotWrapper.addEventListener('click', (e) => {
+    // Click to place pin
+    els.wrapper.addEventListener('click', (e) => {
       if (!pinMode) return;
       if (e.target.classList.contains('pin-marker')) return;
 
-      const rect = screenshotImg.getBoundingClientRect();
+      const rect = els.img.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
 
       pendingPin = { x, y };
       pinMode = false;
-      pinBtn.classList.remove('btn-danger');
-      pinBtn.textContent = '📍 Add Comment';
-      screenshotWrapper.classList.remove('pin-mode');
+      els.pinBtn.classList.remove('btn-danger');
+      els.pinBtn.textContent = '📍 Add Comment';
+      els.wrapper.classList.remove('pin-mode');
 
-      addForm.classList.add('active');
-      commentInput.focus();
+      els.addForm.classList.add('active');
+      els.commentInput.focus();
     });
 
-    // Cancel comment
-    cancelBtn.addEventListener('click', () => {
-      addForm.classList.remove('active');
-      commentInput.value = '';
+    // Cancel
+    els.cancelBtn.addEventListener('click', () => {
+      els.addForm.classList.remove('active');
+      els.commentInput.value = '';
       pendingPin = null;
     });
 
     // Submit comment
-    submitBtn.addEventListener('click', submitComment);
+    els.submitBtn.addEventListener('click', submitComment);
 
     async function submitComment() {
-      const text = commentInput.value.trim();
+      const text = els.commentInput.value.trim();
       if (!text) return alert('Please enter a comment');
-      if (!pendingPin) return alert('Please click on the screenshot first');
 
-      const author = reviewerName.value.trim() || 'Anonymous';
+      const author = els.reviewerName.value.trim() || 'Anonymous';
+      const urgency = els.urgencySelect.value;
+
+      els.submitBtn.disabled = true;
+      els.submitBtn.textContent = 'Saving...';
 
       try {
         await fetch(`${API}/api/comments`, {
@@ -563,77 +604,113 @@
             url: currentUrl,
             comment: text,
             author,
-            x: pendingPin.x,
-            y: pendingPin.y
+            urgency,
+            x: pendingPin?.x,
+            y: pendingPin?.y
           })
         });
 
-        addForm.classList.remove('active');
-        commentInput.value = '';
+        els.addForm.classList.remove('active');
+        els.commentInput.value = '';
+        els.urgencySelect.value = 'medium';
         pendingPin = null;
         loadComments();
-        loadPages(); // Refresh counts
+        loadPages();
       } catch (err) {
         alert('Error: ' + err.message);
+      } finally {
+        els.submitBtn.disabled = false;
+        els.submitBtn.textContent = 'Submit';
       }
     }
 
     // Load comments
     async function loadComments() {
       if (!currentUrl) return;
-
-      const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
-      comments = await res.json();
-      renderPins();
-      renderComments();
+      try {
+        const res = await fetch(`${API}/api/comments?url=${encodeURIComponent(currentUrl)}`);
+        comments = await res.json();
+        renderPins();
+        renderComments();
+      } catch (err) {
+        console.error(err);
+      }
     }
 
-    // Render pins on screenshot
+    // Render pins
     function renderPins() {
-      screenshotWrapper.querySelectorAll('.pin-marker').forEach(p => p.remove());
+      els.wrapper.querySelectorAll('.pin-marker').forEach(p => p.remove());
 
       comments.forEach((c, i) => {
-        if (c.x == null) return;
+        if (c.x == null || c.resolved) return;
 
         const pin = document.createElement('div');
-        pin.className = 'pin-marker' + (c.resolved ? ' resolved' : '') + (c.id === selectedId ? ' selected' : '');
+        pin.className = `pin-marker urgency-${c.urgency}` + (c.id === selectedId ? ' selected' : '');
         pin.style.left = c.x + '%';
         pin.style.top = c.y + '%';
         pin.textContent = i + 1;
-        pin.onclick = (e) => {
-          e.stopPropagation();
-          selectComment(c.id);
-        };
-        screenshotWrapper.appendChild(pin);
+        
+        pin.onclick = (e) => { e.stopPropagation(); selectComment(c.id); };
+        pin.onmouseenter = (e) => showTooltip(c, e);
+        pin.onmouseleave = hideTooltip;
+        
+        els.wrapper.appendChild(pin);
       });
+    }
+
+    function showTooltip(c, e) {
+      els.tooltip.querySelector('.pin-tooltip-author').textContent = c.author;
+      els.tooltip.querySelector('.pin-tooltip-text').textContent = c.comment.slice(0, 100) + (c.comment.length > 100 ? '...' : '');
+      els.tooltip.style.left = (e.pageX + 15) + 'px';
+      els.tooltip.style.top = (e.pageY - 10) + 'px';
+      els.tooltip.classList.add('visible');
+    }
+
+    function hideTooltip() {
+      els.tooltip.classList.remove('visible');
     }
 
     // Render comments list
     function renderComments() {
-      const filtered = comments.filter(c => {
+      let filtered = comments.filter(c => {
         if (filter === 'open') return !c.resolved;
         if (filter === 'resolved') return c.resolved;
+        if (filter === 'critical') return c.urgency === 'critical' && !c.resolved;
         return true;
       });
 
-      commentCount.textContent = comments.length;
+      els.commentCount.textContent = comments.filter(c => !c.resolved).length;
 
       if (filtered.length === 0) {
-        commentsList.innerHTML = '<div class="empty-state"><span>💬</span><p>No comments yet</p></div>';
+        els.commentsList.innerHTML = '<div class="empty-state"><span>💬</span><p>No comments</p></div>';
         return;
       }
 
-      commentsList.innerHTML = filtered.map(c => {
+      els.commentsList.innerHTML = filtered.map((c, idx) => {
         const num = comments.indexOf(c) + 1;
-        const date = new Date(c.timestamp).toLocaleString();
+        const date = new Date(c.timestamp).toLocaleDateString();
+        const repliesHtml = (c.replies && c.replies.length > 0) ? `
+          <div class="replies">
+            ${c.replies.map(r => `
+              <div class="reply-card">
+                <div class="reply-author">${esc(r.author)}</div>
+                <div class="reply-text">${esc(r.comment)}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '';
+
         return `
-          <div class="comment-card ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}"
+          <div class="comment-card urgency-${c.urgency} ${c.resolved ? 'resolved' : ''} ${c.id === selectedId ? 'selected' : ''}"
                onclick="selectComment('${c.id}')">
             <div class="comment-header">
               <span class="comment-num">${num}</span>
-              <span class="comment-author">${escapeHtml(c.author)}</span>
+              <span class="comment-author">${esc(c.author)}</span>
+              <span class="urgency-tag ${c.urgency}">${c.urgency}</span>
             </div>
-            <p class="comment-text">${escapeHtml(c.comment)}</p>
+            <p class="comment-text">${esc(c.comment)}</p>
+            ${repliesHtml}
+            <input class="reply-input" placeholder="Reply..." onkeypress="handleReply(event, '${c.id}')" onclick="event.stopPropagation()">
             <div class="comment-meta">
               <span>${date}</span>
               <div class="comment-actions">
@@ -650,11 +727,27 @@
       selectedId = selectedId === id ? null : id;
       renderPins();
       renderComments();
-      
       if (selectedId) {
-        const pin = screenshotWrapper.querySelector('.pin-marker.selected');
+        const pin = els.wrapper.querySelector('.pin-marker.selected');
         if (pin) pin.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+    };
+
+    window.handleReply = async function(e, parentId) {
+      if (e.key !== 'Enter') return;
+      const text = e.target.value.trim();
+      if (!text) return;
+
+      const author = els.reviewerName.value.trim() || 'Anonymous';
+      
+      await fetch(`${API}/api/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: currentUrl, comment: text, author, parentId })
+      });
+
+      e.target.value = '';
+      loadComments();
     };
 
     window.toggleResolve = async function(id, resolved) {
@@ -664,6 +757,7 @@
         body: JSON.stringify({ url: currentUrl, resolved })
       });
       loadComments();
+      loadPages();
     };
 
     window.deleteComment = async function(id) {
@@ -674,22 +768,22 @@
     };
 
     // Filters
-    filterBtns.forEach(btn => {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         filter = btn.dataset.filter;
         renderComments();
       });
     });
 
-    function escapeHtml(text) {
+    function esc(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    // Initialize
+    // Init
     loadPages();
   </script>
 </body>
