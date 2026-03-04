@@ -319,6 +319,170 @@
     }
     .status-msg.error { display: block; background: #fee; color: #c00; }
     .status-msg.success { display: block; background: #efe; color: #060; }
+
+    /* Mobile toggle button */
+    .comments-toggle {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(108,92,231,0.4);
+      z-index: 1000;
+    }
+
+    .comments-toggle .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e74c3c;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .header h1 {
+        font-size: 1rem;
+      }
+
+      .logo { height: 28px; }
+
+      .header-left { gap: 10px; }
+
+      .header-right {
+        width: 100%;
+        order: 3;
+      }
+
+      .reviewer-input {
+        width: 100%;
+        padding: 12px 16px;
+      }
+
+      .page-bar {
+        padding: 12px 16px;
+        gap: 10px;
+      }
+
+      .page-bar label { display: none; }
+
+      .page-select {
+        min-width: 100%;
+        max-width: 100%;
+        padding: 12px 16px;
+        font-size: 16px; /* Prevents iOS zoom */
+      }
+
+      .btn {
+        padding: 12px 18px;
+        font-size: 0.85rem;
+      }
+
+      .main {
+        flex-direction: column;
+        position: relative;
+      }
+
+      .preview-area {
+        flex: 1;
+        min-height: 50vh;
+      }
+
+      .comments-panel {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        transition: right 0.3s ease;
+        border-left: none;
+      }
+
+      .comments-panel.open {
+        right: 0;
+      }
+
+      .comments-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .panel-header {
+        padding: 16px;
+      }
+
+      .panel-header .close-panel {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .filters {
+        padding: 10px 16px;
+        overflow-x: auto;
+      }
+
+      .filter-btn {
+        white-space: nowrap;
+        padding: 8px 16px;
+      }
+
+      .comments-list {
+        padding: 12px;
+      }
+
+      .comment-card {
+        padding: 12px;
+      }
+
+      .add-form {
+        padding: 12px;
+      }
+
+      .add-form textarea {
+        font-size: 16px; /* Prevents iOS zoom */
+        min-height: 100px;
+      }
+
+      .placeholder-icon { font-size: 3rem; }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 0.9rem; }
+
+      .btn {
+        padding: 10px 14px;
+        font-size: 0.8rem;
+      }
+
+      #pinBtn span { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -379,7 +543,10 @@
     <aside class="comments-panel">
       <div class="panel-header">
         <h2>Comments</h2>
-        <span class="comment-count" id="commentCount">0</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="comment-count" id="commentCount">0</span>
+          <button class="close-panel" id="closePanel" style="display:none;">×</button>
+        </div>
       </div>
       
       <div class="filters">
@@ -409,6 +576,11 @@
     </aside>
   </main>
 
+  <button class="comments-toggle" id="commentsToggle">
+    💬
+    <span class="badge" id="mobileBadge" style="display:none;">0</span>
+  </button>
+
   <script>
     const API = window.location.pathname.replace(/\/$/, '') || '';
     
@@ -433,6 +605,27 @@
     const reviewerName = document.getElementById('reviewerName');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const statusMsg = document.getElementById('statusMsg');
+    const commentsPanel = document.querySelector('.comments-panel');
+    const commentsToggle = document.getElementById('commentsToggle');
+    const closePanel = document.getElementById('closePanel');
+    const mobileBadge = document.getElementById('mobileBadge');
+
+    // Mobile panel toggle
+    function setupMobile() {
+      const isMobile = window.innerWidth <= 768;
+      closePanel.style.display = isMobile ? 'block' : 'none';
+    }
+    
+    setupMobile();
+    window.addEventListener('resize', setupMobile);
+
+    commentsToggle.addEventListener('click', () => {
+      commentsPanel.classList.add('open');
+    });
+
+    closePanel.addEventListener('click', () => {
+      commentsPanel.classList.remove('open');
+    });
 
     // Load saved name
     reviewerName.value = localStorage.getItem('reviewerName') || '';
@@ -474,6 +667,10 @@
         pinBtn.classList.remove('active');
         pinBtn.textContent = '📍 Add Comment';
         addForm.classList.add('active');
+        // Open panel on mobile
+        if (window.innerWidth <= 768) {
+          commentsPanel.classList.add('open');
+        }
         commentInput.focus();
       } else if (e.data.type === 'SELECT_COMMENT') {
         selectedId = e.data.id;
@@ -556,6 +753,14 @@
       });
 
       commentCount.textContent = comments.length;
+      
+      // Update mobile badge
+      if (comments.length > 0) {
+        mobileBadge.textContent = comments.length;
+        mobileBadge.style.display = 'flex';
+      } else {
+        mobileBadge.style.display = 'none';
+      }
 
       if (filtered.length === 0) {
         commentsList.innerHTML = `<div class="empty-state"><span>💬</span><p>No comments yet</p></div>`;
