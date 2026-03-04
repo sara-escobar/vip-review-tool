@@ -474,7 +474,7 @@
 
         if (data.error) throw new Error(data.error);
 
-        screenshotImg.src = data.screenshot + '?t=' + Date.now();
+        screenshotImg.src = API + data.screenshot + '?t=' + Date.now();
         screenshotImg.onload = () => {
           placeholder.style.display = 'none';
           screenshotWrapper.style.display = 'inline-block';
